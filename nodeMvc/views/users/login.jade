@@ -1,0 +1,78 @@
+block content
+
+    style(type='text/css').
+        .magic{
+            padding:4px;
+            display:inline-block;
+            cursor:pointer;
+            font:12px/14px Arial, Helvetica, sans-serif;
+            color:#666;
+            border:1px solid #999;
+            background-color:#eee;
+            -moz-border-radius:10px;
+            -webkit-border-radius:10px;
+            -moz-box-shadow:#999 2px 0px 3px;
+            -webkit-box-shadow:#999 2px 0px 3px;
+            margin-bottom:4px;
+        }
+
+
+script(type='text/javascript', src='/js/' + 'ajaxcomm.js')
+
+center
+
+    block sidebar
+    .widget
+        h1 Please login,
+        p
+            | No cookie for the current browser could be found.<br>
+            | If your cookies settings are set to store, then you<br>
+            | should not have to do this again on this browser. 
+
+
+    #loginDiv(class="magic" style="margin:0 auto;")
+        h3(class="") userName:    
+            input(id="tb_userName" type="textbox" name="userName", value="ben")
+
+        h3 password:    
+            input(id="tb_password" type="textbox" name="password", value="---x-")
+        <br>
+
+        button(id="bt_ok" type="button" class="magic" onclick="doAjaxLogin();") OK
+        button(id="bt_cancel" type="button" class="magic" onclick="") CANCEL
+
+        <br>
+
+        <a id="ImageLink" href="offsomewhere.htm">Become an Arf Member
+
+    
+
+script.    
+    function doAjaxLogin(){
+        var userName = document.getElementById("tb_userName").value;
+        var password = document.getElementById("tb_password").value;
+        var ajxObj = new AjaxJsonPostObject(
+                {
+                    url:'/getUserData',
+                    onSuccess:function(inResponseText){
+                        console.log("onSuccess:"+inResponseText);
+                    },
+                    onFail:function(inError, inStatusText){
+                        console.log("onFail:"+inError+", "+inStatusText);
+                    }
+
+                }
+            );
+
+        ajxObj.send(
+            {
+                userName:document.getElementById("tb_userName").value,
+                password:document.getElementById("tb_password").value
+
+            }
+        );        
+    }
+    
+
+
+    
