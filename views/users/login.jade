@@ -56,6 +56,8 @@ script.
                     url:'/getUserData',
                     onSuccess:function(inResponseText){
                         console.log("onSuccess:"+inResponseText);
+                        document.location.href = '/displayAccount';
+
                     },
                     onFail:function(inError, inStatusText){
                         console.log("onFail:"+inError+", "+inStatusText);

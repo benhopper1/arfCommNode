@@ -48,7 +48,12 @@ module.exports.controller = function(app) {
                             userRecord:inUniRecord,
                             responseRef:res,
                             requestRef:req,
-                            onSuccess:function(){console.log("cookie thingy finished");},
+                            onSuccess:function(){
+                                console.log("cookie thingy finished");
+                                //res.render('users/displayaccount.jade',{data:inUniRecord});
+                                //res.redirect('/displayAccount');
+                                // DONE HERE---
+                            },
                             onFail:function(){}
                         }
                     );
@@ -72,6 +77,29 @@ module.exports.controller = function(app) {
         userModel.getUsers(outData, function(inErr, inRows, inFields){
             res.render('users/login.jade',{data:inRows})
         });
+      
+    });
+
+    /**
+     * A C C O U N T  D I S P L A Y
+     */
+    app.get('/displayAccount', function(req, res){
+        console.log('/displayAccount');
+        if(!(req.cookies.userId)){
+            //res.render('users/login.jade');
+            res.redirect('/login');
+        }
+        //--get user record from model....
+        userModel.getUserDataById(req.cookies.userId, function(inError, inUniRecord, inFields){
+            console.dir(inUniRecord);
+            res.render('users/displayaccount.jade', {data:inUniRecord});
+        });
+
+        //var outData = {};
+        //get user id and valid session, lookup user data
+        //userModel.getUsers(outData, function(inErr, inRows, inFields){
+        //res.render('users/displayaccount.jade')
+        //});
       
     });
 

@@ -39,6 +39,13 @@ var Model = function(){
 		});		
 	}
 
+	this.getUserDataById = function(inUserId, inPostFunction){
+		var sqlString = "SELECT * from vw_userData WHERE id=" + inUserId;
+		connection.query(sqlString, function(inErr, inRows, inFields){								
+			if(inPostFunction){inPostFunction(inErr, inRows[0], inFields);}			
+		});
+	}
+
 	this.verifyDeviceId = function(inUserId, inDeviceId, inPostFunction){
 		var sqlString = "SELECT * from tb_userDeviceList WHERE userId = " + inUserId + " AND id = " + inDeviceId;
 		connection.query(sqlString, function(err, rows, fields){			
@@ -51,6 +58,10 @@ var Model = function(){
 		connection.query(sqlString, function(err, result){			
 			if(inPostFunction){inPostFunction(err, result, result.insertId);}			
 		});
+	}
+
+	this.getUserId = function(inRequestRef){
+		inRequestRef.cookies.userId;
 	}
 
 	this.processCookie = function(inData){
@@ -67,12 +78,12 @@ var Model = function(){
 					// check count
 					if(inExist){
 						//store in cookie
-						inData.responseRef.cookie('deviceId', inData.requestRef.cookies.deviceId, { maxAge: 86400000*365, httpOnly: true }).send('');
+						inData.responseRef.cookie('deviceId', inData.requestRef.cookies.deviceId, { maxAge: 86400000*365, httpOnly: true }).send('').end();
 						if(inData.onSuccess){inData.onSuccess();}
 					}else{
 						// create
 						_this.createNewDeviceId(inData.userRecord.id, 'fakeAgentString', 'fakeDeviceNumber', 2, function(inErr, inResult, inNewDeviceId){
-							inData.responseRef.cookie('deviceId', inNewDeviceId, { maxAge: 86400000*365, httpOnly: true }).send('');
+							inData.responseRef.cookie('deviceId', inNewDeviceId, { maxAge: 86400000*365, httpOnly: true }).send('').end();
 							if(inData.onSuccess){inData.onSuccess();}
 						});
 					}
@@ -81,7 +92,7 @@ var Model = function(){
 			}else{
 				// create new dev id for user
 				_this.createNewDeviceId(inData.userRecord.id, 'fakeAgentString2', 'fakeDeviceNumber', 2, function(inErr, inResult, inNewDeviceId){
-					inData.responseRef.cookie('deviceId', inNewDeviceId, { maxAge: 86400000*365, httpOnly: true }).send('');
+					inData.responseRef.cookie('deviceId', inNewDeviceId, { maxAge: 86400000*365, httpOnly: true }).send('').end();
 					if(inData.onSuccess){inData.onSuccess();}
 				});
 			}

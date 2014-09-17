@@ -43,7 +43,7 @@ var connection = Connection.getMaybeCreate(
 
 
 // some environment variables
-app.set('port', process.env.PORT || 3000);
+app.set('port', process.env.PORT || 35001);
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
 
