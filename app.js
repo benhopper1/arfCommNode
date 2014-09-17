@@ -30,14 +30,14 @@ var router = require('/nodejs_modules/node_modules/router')();
 var Connection = require(__dirname + '/models/connection.js');
 //---done statically here so connection will be prepared for future and share
 var connection = Connection.getMaybeCreate(
-	{
-		instanceName:'arf',
-		host:'127.0.0.1',
-		user:configData.mysqlServerConnection.user,
-		password:configData.mysqlServerConnection.password,
-		database:'newWally'
+    {
+        instanceName:'arf',
+        host:'127.0.0.1',
+        user:configData.mysqlServerConnection.user,
+        password:configData.mysqlServerConnection.password,
+        database:'newWally'
 
-	}
+    }
 );
 
 
@@ -63,31 +63,31 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 //---CUSTOM DATA FOR ROUTES AND JADE-------------------------
 app.use(function (req, res, next){
-	req.custom = 
-		{
-			tester:function(){
-				console.log('tester worked!!');
-				return 77;
-			},
-			tester2:function(){
-				console.log('tester worked!!');
-				return 77;
-			},
-			basePath:path.dirname(require.main.filename)
+    req.custom = 
+        {
+            tester:function(){
+                console.log('tester worked!!');
+                return 77;
+            },
+            tester2:function(){
+                console.log('tester worked!!');
+                return 77;
+            },
+            basePath:path.dirname(require.main.filename)
 
-		}
-	next();
+        }
+    next();
 });
 
 
 
 //----------dynamically include routes (Controller)
 fs.readdirSync('./controllers').forEach(function (file){
-  	if(file.substr(-3) == '.js'){
-  		console.log(file);
-      	route = require('./controllers/' + file);
-      	route.controller(app);
-  	}
+    if(file.substr(-3) == '.js'){
+        console.log(file);
+        route = require('./controllers/' + file);
+        route.controller(app);
+    }
 });
 
 //----H T T P   S E R V E R -----------------------
