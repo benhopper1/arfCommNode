@@ -15,7 +15,7 @@ console.log('basePath:'+basePath);
 
 
 var phpExpress = require('/nodejs_modules/node_modules/php-express')({
-        binPath: '/usr/bin/php' // php bin path.
+        binPath: '/usr/bin/php'
 });
 
 var bodyParser = require('/nodejs_modules/node_modules/body-parser');
@@ -39,7 +39,6 @@ var connection = Connection.getMaybeCreate(
 
     }
 );
-
 
 
 // some environment variables
