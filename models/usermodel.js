@@ -15,7 +15,7 @@ var Model = function(){
 	}
 
 	this.verifyUserPassword = function(inUserName, inPassword, inPostFunction){
-		var sqlString = "SELECT * from tb_user WHERE userName = '"+ inUserName + "' AND password = '" + inPassword + "'";
+		var sqlString = "SELECT * from tb_user WHERE userName = "+ connection.escape(inUserName) + " AND password = " + connection.escape(inPassword) + " ";
 		connection.query(sqlString, function(err, rows, fields){			
 			if(inPostFunction){inPostFunction(err, rows, fields);}			
 		});
@@ -25,7 +25,7 @@ var Model = function(){
 		_this.verifyUserPassword(inData.userName, inData.password, function(inErr, inRows, inFields){
 			if(inRows.length > 0){
 				//---user && password == good
-				var sqlString = "SELECT * from vw_userData WHERE id=" + inRows[0].id;
+				var sqlString = "SELECT * from vw_userData WHERE id=" + connection.escape(inRows[0].id);
 				connection.query(sqlString, function(inErr, inRows, inFields){
 					if(!(inErr)){					
 						if(inData.onSuccess){inData.onSuccess(inRows[0], inFields);}
@@ -40,21 +40,21 @@ var Model = function(){
 	}
 
 	this.getUserDataById = function(inUserId, inPostFunction){
-		var sqlString = "SELECT * from vw_userData WHERE id=" + inUserId;
+		var sqlString = "SELECT * from vw_userData WHERE id=" + connection.escape(inUserId);
 		connection.query(sqlString, function(inErr, inRows, inFields){								
 			if(inPostFunction){inPostFunction(inErr, inRows[0], inFields);}			
 		});
 	}
 
 	this.verifyDeviceId = function(inUserId, inDeviceId, inPostFunction){
-		var sqlString = "SELECT * from tb_userDeviceList WHERE userId = " + inUserId + " AND id = " + inDeviceId;
+		var sqlString = "SELECT * from tb_userDeviceList WHERE userId = " + connection.escape(inUserId) + " AND id = " + connection.escape(inDeviceId);
 		connection.query(sqlString, function(err, rows, fields){			
 			if(inPostFunction){inPostFunction((rows.length > 0));}			
 		});
 	}
 
 	this.createNewDeviceId = function(inUserId, inAgent, inDeviceNumber, inDeviceType, inPostFunction){
-		var sqlString = "INSERT INTO tb_userDeviceList (userId, userAgent, deviceNumber, deviceTypeId) VALUES(" + inUserId + ", '" + inAgent + "','" + inDeviceNumber + "', " + inDeviceType + " )";
+		var sqlString = "INSERT INTO tb_userDeviceList (userId, userAgent, deviceNumber, deviceTypeId) VALUES(" + connection.escape(inUserId) + ", " + connection.escape(inAgent) + "," + connection.escape(inDeviceNumber) + ", " + connection.escape(inDeviceType) + " )";
 		connection.query(sqlString, function(err, result){			
 			if(inPostFunction){inPostFunction(err, result, result.insertId);}			
 		});
