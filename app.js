@@ -92,7 +92,7 @@ fs.readdirSync('./controllers').forEach(function (file){
 
 //----H T T P   S E R V E R -----------------------
 http.createServer(app).listen(app.get('port'), function(){
-  console.log('Express server listening on port ' + app.get('port'));
+    console.log('Express server listening on port ' + app.get('port'));
 });
 
 
@@ -102,8 +102,8 @@ var https = require('https');
 var fs = require('fs');
 
 var options = {
-  key: fs.readFileSync('/nodejs_modules/node_modules/key.pem'),
-  cert: fs.readFileSync('/nodejs_modules/node_modules/cert.pem')
+    key: fs.readFileSync('/nodejs_modules/node_modules/key.pem'),
+    cert: fs.readFileSync('/nodejs_modules/node_modules/cert.pem')
 };
 
 https.createServer(options, app).listen(8000);
