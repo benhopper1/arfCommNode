@@ -1,0 +1,96 @@
+block content
+
+    style(type='text/css').
+        .magic{
+            padding:4px;
+            display:inline-block;
+            cursor:pointer;
+            font:12px/14px Arial, Helvetica, sans-serif;
+            color:#666;
+            border:1px solid #999;
+            background-color:#eee;
+            -moz-border-radius:10px;
+            -webkit-border-radius:10px;
+            -moz-box-shadow:#999 2px 0px 3px;
+            -webkit-box-shadow:#999 2px 0px 3px;
+            margin-bottom:4px;
+        }
+
+
+script(type='text/javascript', src='/js/' + 'ajaxcomm.js')
+
+center
+
+    block sidebar
+    .widget
+        h1 #{data.fName} #{data.lName} Account Information
+        p
+            | This is your account information.<br>
+            | quick screen<br>            
+       
+        a(id="ImageLink" href="offsomewhere.htm") Edit My Account
+        <br>
+        <br>
+
+
+    #accountDiv(class="magic" style="margin:0 auto;")
+        table
+            tbody
+                tr                     
+                    td
+
+                        table
+                            tbody
+                                tr
+                                    td(valign="middle" align="left" style="width: 100px;")
+                                        h5(class="") First Name                         
+                                    td(valign="middle" align="left" style="width: 300px;")                        
+                                        input(id="tb_firstName" type="textbox" name="userName", value="#{data.fName}")
+                                tr
+                                    td(valign="middle" align="left" style="width: 100px;")
+                                        h5(class="") Last Name                         
+                                    td(valign="middle" align="left" style="width: 300px;")                        
+                                        input(id="tb_lastName" type="textbox" name="userName", value="#{data.lName}")
+                                tr
+                                    td(valign="middle" align="left" style="width: 100px;")
+                                        h5(class="") Email Address                         
+                                    td(valign="middle" align="left" style="width: 300px;")                        
+                                        input(id="tb_emailAddress" type="textbox" name="userName", value="#{data.emailAddress}")
+                                tr
+                                    td(valign="middle" align="left" style="width: 100px;")
+                                        h5(class="") User Name                        
+                                    td(valign="middle" align="left" style="width: 300px;")                        
+                                        input(id="tb_userName" type="textbox" name="userName", value="#{data.userName}")
+                                tr
+                                    td(valign="middle" align="left" style="width: 100px;")
+                                        h5(class="") Address                         
+                                    td(valign="middle" align="left" style="width: 300px;")                        
+                                        input(id="tb_address" type="textbox" name="userName", value="na")
+                                tr
+                                    td(valign="middle" align="left" style="width: 100px;")
+                                        h5(class="") City                        
+                                    td(valign="middle" align="left" style="width: 300px;")                        
+                                        input(id="tb_city" type="textbox" name="userName", value="#{data.city}")
+                                tr
+                                    td(valign="middle" align="left" style="width: 100px;")
+                                        h5(class="") State                        
+                                    td(valign="middle" align="left" style="width: 300px;")                        
+                                        input(id="tb_state" type="textbox" name="userName", value="#{data.state}")
+                                tr
+                                    td(valign="middle" align="left" style="width: 100px;")
+                                        h5(class="") Zipcode                         
+                                    td(valign="middle" align="left" style="width: 300px;")                        
+                                        input(id="tb_zip" type="textbox" name="userName", value="#{data.na}")                
+                                tr
+                                    td(valign="middle" align="left" style="width: 100px;")
+                                        h5(class="") Country                         
+                                    td(valign="middle" align="left" style="width: 300px;")                      
+                                        input(id="tb_zip" type="textbox" name="userName", value="us")
+                                        <br>  <br> 
+                                        button(id="bt_ok" type="button" class="magic" onclick="doAjaxLogin();") OK
+                                        button(id="bt_cancel" type="button" class="magic" onclick="") CANCEL
+                    
+                    td(valign="middle" align="left" style="width:400px;")
+                        img(src="http://www.walnutcracker.net/#{data.file}" height="200" align="middle")               
+
+        
