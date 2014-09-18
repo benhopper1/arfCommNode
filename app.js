@@ -58,6 +58,7 @@ app.use(cookieParser('server secret here'));
 app.use(expressSession({secret: 'server secret cat man do', saveUninitialized: true, resave: true}));
 app.use(router);
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/public', express.static(__dirname + '/public'));
 
 
 var busboy = require('/nodejs_modules/node_modules/connect-busboy');

@@ -33,16 +33,7 @@ var Model = function(){
 	}
 
 	this.processUploadedFile = function(inReq, inRes, fieldName, file, fileName, encoding, mimeType, data, inPostFunction){
-		//var imageFolderPath = inReq.custom.imageFolderPath;
-      	//var audioFolderPath = inReq.custom.audioFolderPath;
-		//console.log('----in model------');
-		//console.log('File [' + fieldName + ']: filename: ' + fileName + ', encoding: ' + encoding + ', mimetype: ' + mimeType);
-  		
-  		//--save file
-  		//var saveTo = path.join(imageFolderPath, path.basename(fileName));
-  		//file.pipe(fs.createWriteStream(saveTo));
-  		mediaStorageModel.storeFile(file, fileName, encoding, mimeType, data);
-
+	  		mediaStorageModel.storeFile(file, fileName, encoding, mimeType, data);
 	}
 
 
