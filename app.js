@@ -60,6 +60,10 @@ app.use(router);
 app.use(express.static(path.join(__dirname, 'public')));
 
 
+var busboy = require('/nodejs_modules/node_modules/connect-busboy');
+app.use(busboy());
+
+
 //---CUSTOM DATA FOR ROUTES AND JADE-------------------------
 app.use(function (req, res, next){
     req.custom = 
@@ -72,7 +76,9 @@ app.use(function (req, res, next){
                 console.log('tester worked!!');
                 return 77;
             },
-            basePath:path.dirname(require.main.filename)
+            basePath:path.dirname(require.main.filename),
+            imageFolderPath:path.dirname(require.main.filename) + '/public/images',
+            audioFolderPath:path.dirname(require.main.filename) + '/public/audio'
 
         }
     next();

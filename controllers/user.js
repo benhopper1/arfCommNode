@@ -1,6 +1,6 @@
 var UserModel = require('../models/usermodel');
 var userModel = new UserModel();
-module.exports.controller = function(app) {
+module.exports.controller = function(app){
 
     /**
      * a home page route, testing php rendering...
