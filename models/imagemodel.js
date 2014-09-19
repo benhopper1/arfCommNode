@@ -25,20 +25,36 @@ var Model = function(){
 		gm(inOldFileNamePath)			
 			.resize(configData.themes[inTheme].resizeX, configData.themes[inTheme].resizeY)
 		  	.gravity('Center')
-
-		  	//----
-		  	.stroke("#ffffff")
-			.drawCircle(10, 10, 20, 10)
-			.font("Helvetica.ttf", 12)
-			.drawText(30, 20, "GMagick!")
-			//----
-
-
 		  	.crop(configData.themes[inTheme].cropX, configData.themes[inTheme].cropY)			
 			.write(inNewFileNamePath, function(err){
 				if(inPostFunction){inPostFunction(err);}			  
 			})
 	}
+
+	//--theme settings are in the config file, settings for crop resize....
+	this.resizeStream = function(inStream, inFileNamePath, inTheme, inPostFunction){
+		if(!(inTheme in configData.themes)){console.log('THEME NOT EXIST!!'); return false;}
+		console.log("THEME:" + inTheme);
+		gm(inStream, inFileNamePath)
+
+			.resize(configData.themes[inTheme].resizeX, configData.themes[inTheme].resizeY)
+		  	.gravity('Center')
+		  	.quality(100)
+
+		  	//TODO remove-------------------
+		  	//----Testing purpose only------
+		  	.stroke("#ffffff")			
+			.font("Helvetica.ttf", 14)
+			.drawText(30, 20, "ArfComm")
+			//-------------------------------
+
+		  	.crop(configData.themes[inTheme].cropX, configData.themes[inTheme].cropY)
+			.stream(function (err, stdout, stderr) {
+				if(inPostFunction){inPostFunction(err, stdout, stderr);}			  
+			});
+	}
+
+
 
 }
 
@@ -47,21 +63,3 @@ module.exports = Model;
 
 
 
-//---- single unit testing -------------------------------------------------------------------
-
-//     /home/ben/git_project/arfcommnode/public/images/arf_83_0.jpg
-
-
-//var filePath = '/home/ben/git_project/arfcommnode/public/images/arf_83_0.jpg';
-var filePath ='/home/ben/git_project/arfcommnode/public/images/3961ed30-3f9a-11e4-912b-958409e520ae.jpg';
-var xfilePath = '/home/ben/git_project/arfcommnode/public/images/arf_83_0B.jpg';
-
-var model = new Model();
-model.getInformation('/home/ben/git_project/arfcommnode/public/images/arf_83_0.jpg', function(inErr, inData){
-	console.dir(inErr);
-	console.dir(inData);
-})
-
-model.resize(filePath, xfilePath, 'normalUserImage', function(inErr){
-	console.log(inErr);
-});

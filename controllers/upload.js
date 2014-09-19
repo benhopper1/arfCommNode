@@ -23,54 +23,72 @@ module.exports.controller = function(app){
         );     
     });
 
-
-
-
+    
 
         //-----P O S T ------
-    app.post('/upload', function(req, res){  
-    	req.pipe(req.busboy);
-    	req.busboy.on('file', function(fieldname, file, filename, encoding, mimetype){
-    		var data = {}; //crop , convert audio etc... custom data.....
-    		model.processUploadedFile(req, res, fieldname, file, filename, encoding, mimetype, data, function(){
-    			//post result of processUploadedFile-----
-    		});
-    	});
+    app.post('/upload', function(req, res){
+        //console.dir( req);
+    	
 
-    	//req.busboy.on('file', model.processUploadedFile);
-      		//console.log('File [' + fieldname + ']: filename: ' + filename + ', encoding: ' + encoding + ', mimetype: ' + mimetype);
-      		//console.dir(file);
+        var fieldsHash = {};
+        var fieldName;
+        var file;
+        var fileName;
+        var encoding;
+        var mimeType;
 
-      		//--save file
-      		//var saveTo = path.join(imageFolderPath, path.basename(filename));
-      		//file.pipe(fs.createWriteStream(saveTo));
+        req.busboy.on('field', function(inFieldName, invalue, something0, somethig1){
+            console.log('onfield');
+            //--collecting input fields------------
+            fieldsHash[inFieldName] = invalue;
+            req.busboy.on('end', function(){console.log('onEnd!!')});
+
+        });
+
+    	req.busboy.on('file', function(inFieldName, inFile, inFileName, inEncoding, inMimeType){
+            //force after parse of fields,,, brute--- need asyc lib
+            setTimeout(function(){
+                console.log('inTimeOut');
+                console.dir(fieldsHash);
+                console.log('onFile');
+
+                fieldName = inFieldName;                
+                file = inFile;                
+                fileName = inFileName;
+                encoding = inEncoding;
+                mimeType = inMimeType;
+                
+                console.dir(fieldsHash);                
+                model.processUploadedFile(
+                    {
+                        request:'',
+                        response:'',
+                        fieldName:fieldName,
+                        file:file,
+                        fileName:fileName,
+                        encoding:encoding,
+                        mimeType:mimeType,
+                        data:fieldsHash,
+                        onComplete:function(inData){
+                            console.log('onComplete of processUploadedFile');
+                            console.dir(inData);
+                        }
+                    }               
+                );
+            },100);
 
 
 
-    	//});
+        });        
+        
+        
+        req.busboy.on('finish', function(){
+            console.log("finished!!!!");
 
+        });
 
-    	//req.setEncoding("binary");    	
-      	//console.log("post upload");
-      	//console.log("path-x:"+req.custom.basePath);
-
-
-      	//fileName = req.files; //.uploadedFile.name;
-      	//console.log("fileName:" + fileName);
-
-
-
-
-
-
-
-      	
-        //console.log("UserName:"+req.session.userName);
-        //console.dir(req.body);        
-        //console.dir(req);
+        req.pipe(req.busboy);
         
     });
 
 }
-
-//sftp://ben@192.168.0.16/home/ben/git_project/arfcommnode/views/upload/upload_get.jade

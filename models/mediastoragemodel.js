@@ -24,25 +24,25 @@ var Model = function(){
   	var audioFolderPath = basePath + '/' + configData.mediaStorageModel.audioFolderPath; 
 
 
-  	// determines which function to process with------
-	this.storeFile = function(inFile, inFileName, inEncoding, inMimeType, data){
+  	// determines which function to process with------	
+	this.storeFile = function(inData){		
 		//--- verify file is what it says it is!!!!
-		if(!(_this.validateFileContents(inFile, inEncoding, inMimeType))){
+		if(!(_this.validateFileContents(inData.file, inData.encoding, inData.mimeType))){
 			//-- was spoofed!!!, do not allow ----
 			return false;
 		}
 
 		//---mimetype: audio/wav
-		if(inMimeType.indexOf('audio') != -1){
+		if(inData.mimeType.indexOf('audio') != -1){
 			console.log("audio");
-			_this.storeAudioFile(inFile, inFileName, inEncoding, inMimeType, data);
+			_this.storeAudioFile(inData.file, inData.fileName, inData.encoding, inData.mimeType, inData.onComplete);
 			return true;
 		}
-		console.log('ext:' + path.extname(inFileName));
+		console.log('ext:' + path.extname(inData.fileName));
 		//image/jpeg
-		if(inMimeType.indexOf('image') != -1 || path.extname(inFileName) == '.jpg' || path.extname(inFileName) == '.gif' || path.extname(inFileName) == '.png'){
+		if(inData.mimeType.indexOf('image') != -1 || path.extname(inData.fileName) == '.jpg' || path.extname(inData.fileName) == '.gif' || path.extname(inData.fileName) == '.png'){
 			console.log("image");
-			_this.storeImageFile(inFile, inFileName, inEncoding, inMimeType, data);
+			_this.storeImageFile(inData.file, inData.fileName, inData.encoding, inData.mimeType, inData.data.theme, inData.onComplete);
 			return true;
 		}
 
@@ -57,26 +57,22 @@ var Model = function(){
 
 		var saveTo = path.join(audioFolderPath, path.basename(inFileName));
   		inFile.pipe(fs.createWriteStream(saveTo));
-  		_this.dbStoreFile(inFileName, path.join(audioFolderPath, path.basename(inFileName)), inEncoding, inMimeType, '');
+  		_this.dbStoreFile(path.join(audioFolderPath, path.basename(inFileName)), inEncoding, inMimeType, '');
   		return true;
 	}
 
-	this.storeImageFile = function(inFile, inFileName, inEncoding, inMimeType, data){
-		inFileName = _this.buildUniqueName(inFileName);
-		_this.dbStoreFile(inFileName, path.join(audioFolderPath, path.basename(inFileName)), inEncoding, inMimeType, '');
-		var saveTo = path.join(imageFolderPath, path.basename(inFileName));
-  		inFile.pipe(fs.createWriteStream(saveTo));
-  		inFile.on('close', function(){
-  			console.log("pipeEvent")
+	this.storeImageFile = function(inFile, inFileNamePath, inEncoding, inMimeType, inTheme, data){
+		imageModel.resizeStream(inFile, inFileNamePath, inTheme, function(err, stdout, stderr){			
+			inFileNamePath = _this.buildUniqueName(inFileNamePath);
+			_this.dbStoreFile(path.join(audioFolderPath, path.basename(inFileNamePath)), inEncoding, inMimeType, '');
+			var saveTo = path.join(imageFolderPath, path.basename(inFileNamePath));
+  			stdout.pipe(fs.createWriteStream(saveTo));
+  			stdout.on('close', function(){
+  				console.log("stream Written to File:" + saveTo);
 
-  			//--change to a stream, src and target cannot be same....
-  			imageModel.resize(saveTo, saveTo, 'normalUserImage', function(inErr){
-				console.log(inErr);
-				console.log('resize complete');
 			});
-  		});
-
-  		
+		});
+	
 
   		return true;
 	}
@@ -86,19 +82,19 @@ var Model = function(){
 		return true;
 	}
 
-	this.buildUniqueName = function(inFileName){		
-		return inFileName.replace(path.basename(inFileName, path.extname(inFileName)), uuid.v1());		
+	this.buildUniqueName = function(inFileNamePath){		
+		return inFileNamePath.replace(path.basename(inFileNamePath, path.extname(inFileNamePath)), uuid.v1());		
 	}
 
 
-	this.dbStoreFile = function(inFileName, inPathFileName, inEncoding, inMimeType, inPostFunction){
+	this.dbStoreFile = function(inFileNamePath, inEncoding, inMimeType, inPostFunction){
 		var domain = 'HTTP://127.0.0.1';
-		var internetPath = inPathFileName.replace(path.dirname(require.main.filename), domain);		
-		var fileName = path.basename(inPathFileName, path.extname(inPathFileName));
-		var subFolders = internetPath.replace(domain, '').replace('/' + path.basename(inPathFileName), '');
-		var localPath = path.dirname(inPathFileName).replace(os.hostname(), "");
+		var internetPath = inFileNamePath.replace(path.dirname(require.main.filename), domain);		
+		var fileName = path.basename(inFileNamePath, path.extname(inFileNamePath));
+		var subFolders = internetPath.replace(domain, '').replace('/' + path.basename(inFileNamePath), '');
+		var localPath = path.dirname(inFileNamePath).replace(os.hostname(), "");
 		var fullPathName = internetPath;
-		var extension = path.extname(inPathFileName);
+		var extension = path.extname(inFileNamePath);
 		var domainUsePath = subFolders + '/' + fileName + extension;
 
 		var sqlString = "INSERT INTO tb_fileSystem (fileName, domain, subFolders, localPath, fullPathName, extension, domainUsePath, encoding, mime) VALUES(" + connection.escape(fileName) + ", " + connection.escape(domain) + "," + connection.escape(subFolders) + "," + connection.escape(localPath) + "," + connection.escape(fullPathName) + "," + connection.escape(extension) + ", " + connection.escape(domainUsePath) + ", " + connection.escape(inEncoding) + ", " + connection.escape(inMimeType) + " )";
@@ -109,7 +105,6 @@ var Model = function(){
 			console.dir(err);
 					
 		});
-
 	}
 
 
