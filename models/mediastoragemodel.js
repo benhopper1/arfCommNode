@@ -4,6 +4,9 @@ var fs = require('fs');
 var os = require("os");
 var uuid = require('/nodejs_modules/node_modules/node-uuid');
 
+var ImageModel = require(path.dirname(require.main.filename) + '/models/' + 'imagemodel.js');
+var imageModel = new ImageModel();
+
 
 var Connection = require(__dirname + '/connection.js');
 connection = Connection.getInstance('arf').getConnection();
@@ -49,6 +52,9 @@ var Model = function(){
 
 	this.storeAudioFile = function(inFile, inFileName, inEncoding, inMimeType, data){
 		inFileName = _this.buildUniqueName(inFileName);
+
+		//run converter,,, should create an array of files, same name diff extensions---
+
 		var saveTo = path.join(audioFolderPath, path.basename(inFileName));
   		inFile.pipe(fs.createWriteStream(saveTo));
   		_this.dbStoreFile(inFileName, path.join(audioFolderPath, path.basename(inFileName)), inEncoding, inMimeType, '');
@@ -59,7 +65,19 @@ var Model = function(){
 		inFileName = _this.buildUniqueName(inFileName);
 		_this.dbStoreFile(inFileName, path.join(audioFolderPath, path.basename(inFileName)), inEncoding, inMimeType, '');
 		var saveTo = path.join(imageFolderPath, path.basename(inFileName));
-  		inFile.pipe(fs.createWriteStream(saveTo));  		
+  		inFile.pipe(fs.createWriteStream(saveTo));
+  		inFile.on('close', function(){
+  			console.log("pipeEvent")
+
+  			//--change to a stream, src and target cannot be same....
+  			imageModel.resize(saveTo, saveTo, 'normalUserImage', function(inErr){
+				console.log(inErr);
+				console.log('resize complete');
+			});
+  		});
+
+  		
+
   		return true;
 	}
 
@@ -68,37 +86,20 @@ var Model = function(){
 		return true;
 	}
 
-	this.buildUniqueName = function(inFileName){
-		//var oldPathName = inFileName;		
-		//var oldFileName = path.basename(inFileName, path.extname(inFileName));		
+	this.buildUniqueName = function(inFileName){		
 		return inFileName.replace(path.basename(inFileName, path.extname(inFileName)), uuid.v1());		
 	}
 
 
 	this.dbStoreFile = function(inFileName, inPathFileName, inEncoding, inMimeType, inPostFunction){
 		var domain = 'HTTP://127.0.0.1';
-		var internetPath = inPathFileName.replace(path.dirname(require.main.filename), domain);
-		console.log('internetPath:' + internetPath);
-		console.log('inPathFileName:' + inPathFileName);
-		//console.dir(os.networkInterfaces( ));
+		var internetPath = inPathFileName.replace(path.dirname(require.main.filename), domain);		
 		var fileName = path.basename(inPathFileName, path.extname(inPathFileName));
-		console.log('fileName:' + fileName);
-
 		var subFolders = internetPath.replace(domain, '').replace('/' + path.basename(inPathFileName), '');
-		console.log('subFolders:' + subFolders);		
-
 		var localPath = path.dirname(inPathFileName).replace(os.hostname(), "");
-		console.log('localPath:' + localPath);	
-
 		var fullPathName = internetPath;
-		console.log('fullPathName:' + fullPathName);	
-			
-
 		var extension = path.extname(inPathFileName);
-		console.log('extension:' + extension);
-
 		var domainUsePath = subFolders + '/' + fileName + extension;
-
 
 		var sqlString = "INSERT INTO tb_fileSystem (fileName, domain, subFolders, localPath, fullPathName, extension, domainUsePath, encoding, mime) VALUES(" + connection.escape(fileName) + ", " + connection.escape(domain) + "," + connection.escape(subFolders) + "," + connection.escape(localPath) + "," + connection.escape(fullPathName) + "," + connection.escape(extension) + ", " + connection.escape(domainUsePath) + ", " + connection.escape(inEncoding) + ", " + connection.escape(inMimeType) + " )";
 		connection.query(sqlString, function(err, result){			
