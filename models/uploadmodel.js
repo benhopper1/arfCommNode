@@ -20,10 +20,9 @@ var Model = function(){
 		return "model test from upload!!!!";
 	}
 
-	this.processUploadedFile = function(inData){  		
-  		mediaStorageModel.storeFile(inData);
+	this.processUploadedFile = function(inData){
+		mediaStorageModel.storeFile(inData);
 	}
- 
 }
 
 module.exports = Model;

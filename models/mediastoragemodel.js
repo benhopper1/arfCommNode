@@ -7,6 +7,9 @@ var uuid = require('/nodejs_modules/node_modules/node-uuid');
 var ImageModel = require(path.dirname(require.main.filename) + '/models/' + 'imagemodel.js');
 var imageModel = new ImageModel();
 
+var AudioModel = require(path.dirname(require.main.filename) + '/models/' + 'audiomodel.js');
+var audioModel = new AudioModel();
+
 
 var Connection = require(__dirname + '/connection.js');
 connection = Connection.getInstance('arf').getConnection();
@@ -25,39 +28,44 @@ var Model = function(){
 
 
   	// determines which function to process with------	
-	this.storeFile = function(inData){		
+	this.storeFile = function(inData){
+		console.log('storeFile');
+		console.dir(inData);
 		//--- verify file is what it says it is!!!!
 		if(!(_this.validateFileContents(inData.file, inData.encoding, inData.mimeType))){
 			//-- was spoofed!!!, do not allow ----
 			return false;
 		}
 
-		//---mimetype: audio/wav
-		if(inData.mimeType.indexOf('audio') != -1){
-			console.log("audio");
+		
+		if(inData.mimeType.indexOf('audio') != -1 || path.extname(inData.fileName) == '.wav' || path.extname(inData.fileName) == '.mp3'){
 			_this.storeAudioFile(inData.file, inData.fileName, inData.encoding, inData.mimeType, inData.onComplete);
 			return true;
 		}
-		console.log('ext:' + path.extname(inData.fileName));
-		//image/jpeg
-		if(inData.mimeType.indexOf('image') != -1 || path.extname(inData.fileName) == '.jpg' || path.extname(inData.fileName) == '.gif' || path.extname(inData.fileName) == '.png'){
-			console.log("image");
+		
+		
+		if(inData.mimeType.indexOf('image') != -1 || path.extname(inData.fileName) == '.jpg' || path.extname(inData.fileName) == '.gif' || path.extname(inData.fileName) == '.png'){			
 			_this.storeImageFile(inData.file, inData.fileName, inData.encoding, inData.mimeType, inData.data.theme, inData.onComplete);
 			return true;
 		}
-
-		console.log("file type will not be saved");
-		
 	}
 
 	this.storeAudioFile = function(inFile, inFileName, inEncoding, inMimeType, data){
-		inFileName = _this.buildUniqueName(inFileName);
+		inFileName = _this.buildUniqueName(inFileName);		
+		audioModel.wavStreamToMp3Stream(inFile, function(inMp3Stream){
 
-		//run converter,,, should create an array of files, same name diff extensions---
+			//save wav
+			var saveTo = path.join(audioFolderPath, path.basename(inFileName));
+  			inFile.pipe(fs.createWriteStream(saveTo));
+  			_this.dbStoreFile(path.join(audioFolderPath, path.basename(inFileName)), inEncoding, inMimeType, '');
 
-		var saveTo = path.join(audioFolderPath, path.basename(inFileName));
-  		inFile.pipe(fs.createWriteStream(saveTo));
-  		_this.dbStoreFile(path.join(audioFolderPath, path.basename(inFileName)), inEncoding, inMimeType, '');
+  			var mp3FileName = path.basename(inFileName, path.extname(inFileName)) + '.mp3';
+  			inMp3Stream.pipe(fs.createWriteStream(path.join(audioFolderPath, mp3FileName)));
+  			_this.dbStoreFile(path.join(audioFolderPath, mp3FileName), '', 'audio/mp3', '');
+
+		});
+
+
   		return true;
 	}
 

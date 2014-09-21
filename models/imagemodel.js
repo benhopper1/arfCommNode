@@ -22,12 +22,12 @@ var Model = function(){
 	//--theme settings are in the config file, settings for crop resize....
 	this.resize = function(inOldFileNamePath, inNewFileNamePath, inTheme, inPostFunction){
 		console.log("resize ENTERED!!!");
-		gm(inOldFileNamePath)			
+		gm(inOldFileNamePath)
 			.resize(configData.themes[inTheme].resizeX, configData.themes[inTheme].resizeY)
 		  	.gravity('Center')
-		  	.crop(configData.themes[inTheme].cropX, configData.themes[inTheme].cropY)			
+		  	.crop(configData.themes[inTheme].cropX, configData.themes[inTheme].cropY)
 			.write(inNewFileNamePath, function(err){
-				if(inPostFunction){inPostFunction(err);}			  
+				if(inPostFunction){inPostFunction(err);}
 			})
 	}
 
@@ -43,14 +43,14 @@ var Model = function(){
 
 		  	//TODO remove-------------------
 		  	//----Testing purpose only------
-		  	.stroke("#ffffff")			
+		  	.stroke("#ffffff")
 			.font("Helvetica.ttf", 14)
 			.drawText(30, 20, "ArfComm")
 			//-------------------------------
 
 		  	.crop(configData.themes[inTheme].cropX, configData.themes[inTheme].cropY)
 			.stream(function (err, stdout, stderr) {
-				if(inPostFunction){inPostFunction(err, stdout, stderr);}			  
+				if(inPostFunction){inPostFunction(err, stdout, stderr);}
 			});
 	}
 
