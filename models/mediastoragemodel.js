@@ -10,6 +10,9 @@ var imageModel = new ImageModel();
 var AudioModel = require(path.dirname(require.main.filename) + '/models/' + 'audiomodel.js');
 var audioModel = new AudioModel();
 
+var MultiStream = require(path.dirname(require.main.filename) + '/library/core/' + 'multistream.js');
+var multiStream = new MultiStream();
+
 
 var Connection = require(__dirname + '/connection.js');
 connection = Connection.getInstance('arf').getConnection();
@@ -27,7 +30,7 @@ var Model = function(){
   	var audioFolderPath = basePath + '/' + configData.mediaStorageModel.audioFolderPath; 
 
 
-  	// determines which function to process with------	
+  	// determines which function to process with------
 	this.storeFile = function(inData){
 		console.log('storeFile');
 		console.dir(inData);
@@ -52,17 +55,23 @@ var Model = function(){
 
 	this.storeAudioFile = function(inFile, inFileName, inEncoding, inMimeType, inCompleteFunction){
 		inFileName = _this.buildUniqueName(inFileName);
-
+		var streamsArray = multiStream.multify(inFile, 2);
+		
 		if(path.extname(inFileName) == '.wav'){
-			audioModel.wavStreamToMp3Stream(inFile, function(inMp3Stream, err){
+			audioModel.wavStreamToMp3Stream(streamsArray[0], function(inMp3Stream, err){
 				if(!(err)){
+					
 					var saveTo = path.join(audioFolderPath, path.basename(inFileName));
-		  			inFile.pipe(fs.createWriteStream(saveTo));
-		  			_this.dbStoreFile(path.join(audioFolderPath, path.basename(inFileName)), inEncoding, inMimeType, '');
-	  			
-		  			var mp3FileName = path.basename(inFileName, path.extname(inFileName)) + '.mp3';
+					var mp3FileName = path.basename(inFileName, path.extname(inFileName)) + '.mp3';
+
+		  			streamsArray[1].pipe(fs.createWriteStream(saveTo));
 		  			inMp3Stream.pipe(fs.createWriteStream(path.join(audioFolderPath, mp3FileName)));
-		  			_this.dbStoreFile(path.join(audioFolderPath, mp3FileName), '', 'audio/mp3', '');
+
+		  			_this.dbStoreFile(path.join(audioFolderPath, path.basename(inFileName)), inEncoding, inMimeType, '');
+	  				_this.dbStoreFile(path.join(audioFolderPath, mp3FileName), '', 'audio/mp3', '');
+		  			
+		  			
+		  			
   				}
 	  			if(inCompleteFunction){
   					inCompleteFunction(
@@ -73,21 +82,19 @@ var Model = function(){
   						},err
 					);
   				}
-
 			});
 		}
 		if(path.extname(inFileName) == '.mp3'){
 			
-			audioModel.mp3StreamToWavStream(inFile, function(inWavStream, err){
+			audioModel.mp3StreamToWavStream(streamsArray[0], function(inWavStream, err){
 				if(!(err)){
 					var saveTo = path.join(audioFolderPath, path.basename(inFileName));
-					
-
-					inFile.pipe(fs.createWriteStream(saveTo));					
-					_this.dbStoreFile(path.join(audioFolderPath, path.basename(inFileName)), inEncoding, inMimeType, '');
-
 					var wavFileName = path.basename(inFileName, path.extname(inFileName)) + '.wav';
+
+					streamsArray[1].pipe(fs.createWriteStream(saveTo));
 					inWavStream.pipe(fs.createWriteStream(path.join(audioFolderPath, wavFileName)));
+
+					_this.dbStoreFile(path.join(audioFolderPath, path.basename(inFileName)), inEncoding, inMimeType, '');
 					_this.dbStoreFile(path.join(audioFolderPath, wavFileName), '', 'audio/wav', '');
 				}
 				if(inCompleteFunction){
