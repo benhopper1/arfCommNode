@@ -50,34 +50,81 @@ var Model = function(){
 		}
 	}
 
-	this.storeAudioFile = function(inFile, inFileName, inEncoding, inMimeType, data){
-		inFileName = _this.buildUniqueName(inFileName);		
-		audioModel.wavStreamToMp3Stream(inFile, function(inMp3Stream){
+	this.storeAudioFile = function(inFile, inFileName, inEncoding, inMimeType, inCompleteFunction){
+		inFileName = _this.buildUniqueName(inFileName);
 
-			//save wav
-			var saveTo = path.join(audioFolderPath, path.basename(inFileName));
-  			inFile.pipe(fs.createWriteStream(saveTo));
-  			_this.dbStoreFile(path.join(audioFolderPath, path.basename(inFileName)), inEncoding, inMimeType, '');
+		if(path.extname(inFileName) == '.wav'){
+			audioModel.wavStreamToMp3Stream(inFile, function(inMp3Stream, err){
+				if(!(err)){
+					var saveTo = path.join(audioFolderPath, path.basename(inFileName));
+		  			inFile.pipe(fs.createWriteStream(saveTo));
+		  			_this.dbStoreFile(path.join(audioFolderPath, path.basename(inFileName)), inEncoding, inMimeType, '');
+	  			
+		  			var mp3FileName = path.basename(inFileName, path.extname(inFileName)) + '.mp3';
+		  			inMp3Stream.pipe(fs.createWriteStream(path.join(audioFolderPath, mp3FileName)));
+		  			_this.dbStoreFile(path.join(audioFolderPath, mp3FileName), '', 'audio/mp3', '');
+  				}
+	  			if(inCompleteFunction){
+  					inCompleteFunction(
+  						{
+  							fileName:path.basename(inFileName),
+  							domainFilePath:configData.mediaStorageModel.imageFolderPath + '/' + path.basename(inFileName),
+  							fileNameNoExt:path.basename(inFileName, path.extname(inFileName))
+  						},err
+					);
+  				}
 
-  			var mp3FileName = path.basename(inFileName, path.extname(inFileName)) + '.mp3';
-  			inMp3Stream.pipe(fs.createWriteStream(path.join(audioFolderPath, mp3FileName)));
-  			_this.dbStoreFile(path.join(audioFolderPath, mp3FileName), '', 'audio/mp3', '');
+			});
+		}
+		if(path.extname(inFileName) == '.mp3'){
+			
+			audioModel.mp3StreamToWavStream(inFile, function(inWavStream, err){
+				if(!(err)){
+					var saveTo = path.join(audioFolderPath, path.basename(inFileName));
+					
 
-		});
+					inFile.pipe(fs.createWriteStream(saveTo));					
+					_this.dbStoreFile(path.join(audioFolderPath, path.basename(inFileName)), inEncoding, inMimeType, '');
+
+					var wavFileName = path.basename(inFileName, path.extname(inFileName)) + '.wav';
+					inWavStream.pipe(fs.createWriteStream(path.join(audioFolderPath, wavFileName)));
+					_this.dbStoreFile(path.join(audioFolderPath, wavFileName), '', 'audio/wav', '');
+				}
+				if(inCompleteFunction){
+  					inCompleteFunction(
+  						{
+  							fileName:path.basename(inFileName),
+  							domainFilePath:configData.mediaStorageModel.imageFolderPath + '/' + path.basename(inFileName),
+  							fileNameNoExt:path.basename(inFileName, path.extname(inFileName))
+  						},err
+					);
+  				}
+			});
+		}
+
+
 
 
   		return true;
 	}
 
-	this.storeImageFile = function(inFile, inFileNamePath, inEncoding, inMimeType, inTheme, data){
-		imageModel.resizeStream(inFile, inFileNamePath, inTheme, function(err, stdout, stderr){			
+	this.storeImageFile = function(inFile, inFileNamePath, inEncoding, inMimeType, inTheme, inCompleteFunction){
+		imageModel.resizeStream(inFile, inFileNamePath, inTheme, function(err, stdout, stderr){
 			inFileNamePath = _this.buildUniqueName(inFileNamePath);
 			_this.dbStoreFile(path.join(audioFolderPath, path.basename(inFileNamePath)), inEncoding, inMimeType, '');
 			var saveTo = path.join(imageFolderPath, path.basename(inFileNamePath));
   			stdout.pipe(fs.createWriteStream(saveTo));
   			stdout.on('close', function(){
   				console.log("stream Written to File:" + saveTo);
-
+  				console.dir(inCompleteFunction);
+  				if(inCompleteFunction){
+  					inCompleteFunction(
+  						{
+  							fileName:path.basename(inFileNamePath),
+  							domainFilePath:configData.mediaStorageModel.imageFolderPath + '/' + path.basename(inFileNamePath)
+  						}
+					);
+  				}
 			});
 		});
 	

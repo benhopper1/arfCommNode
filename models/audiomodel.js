@@ -49,9 +49,19 @@ var Model = function(){
 		reader.on('format', function(format){
 			console.log('WAV format: %j', format);
 			console.dir(inStream);
-			var encoder = new lame.Encoder(format);
-			var encodedStream = reader.pipe(encoder);//.pipe(output);
-			if(onFinish){onFinish(encodedStream);}
+
+			var encoder;
+			var encodedStream;
+			try{
+				encoder = new lame.Encoder(format);
+				encodedStream = reader.pipe(encoder);
+				if(onFinish){onFinish(encodedStream, false);}
+
+			}
+			catch(e){
+				if(onFinish){onFinish(encodedStream, e);}
+			}
+			
 		});
 
 		inStream.pipe(reader);

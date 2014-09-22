@@ -27,24 +27,26 @@ module.exports.controller = function(app){
 
         //-----P O S T ---------------------------------
     app.post('/upload', function(req, res){
-        var fieldsHash = {};
-        var fieldName;
-        var file;
-        var fileName;
-        var encoding;
-        var mimeType;
+        //var fieldsHash = {};
+        
+        //var file;
+        //var fileName;
+        //var encoding;
+        //var mimeType;
 
 
 
         var form = new multiparty.Form();
         form.parse(req, function(err, fields, files){
             if(files){
+                var fieldsHash = {};
                 var tmpFilePath = files.uploadedFile[0].path;
-                fileName = files.uploadedFile[0].originalFilename;
-                encoding = '';
-                mimeType = '';
+                var fileName = files.uploadedFile[0].originalFilename;
+                var encoding = '';
+                var mimeType = '';
+                var fieldName ='';
 
-                file = fs.createReadStream(tmpFilePath);
+                var file = fs.createReadStream(tmpFilePath);
 
                 Object.keys(fields).forEach(function(name){
                     fieldsHash[name] = fields[name][0];
@@ -53,16 +55,17 @@ module.exports.controller = function(app){
                 model.processUploadedFile(
                     {
                         request:'',
-                        response:'',
-                        fieldName:fieldName,
+                        response:'',                        
                         file:file,
                         fileName:fileName,
                         encoding:encoding,
                         mimeType:mimeType,
                         data:fieldsHash,
-                        onComplete:function(inData){
+                        onComplete:function(inData, err){
                             console.log('onComplete of processUploadedFile');
                             console.dir(inData);
+                            console.log('----------error-----------');
+                            console.dir(err);
                         }
                     }
                 );
