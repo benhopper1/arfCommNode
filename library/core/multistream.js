@@ -1,7 +1,5 @@
 var PassStream = require('stream').PassThrough;
 
-
-
 var MultiStream = function(){
 
 	this.multify = function(inStream, inCount){

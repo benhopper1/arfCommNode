@@ -5,11 +5,20 @@ module.exports.controller = function(app){
     /**
      * a home page route, testing php rendering...
      */
-      app.get('/signup', function(req, res) {
+      app.get('/createAccount', function(req, res){
             // any logic goes here
-            req.session.userName = "Ben TTr-3";      
-            console.log("app get signup");
-            res.render('users/index.php')
+            //req.session.userName = "Ben TTr-3";      
+            console.log("app get createAccount");
+            res.render('users/createaccount.jade',
+                {
+                    data:
+                        {
+                            fName:'ben',
+                            lName:'hopper'
+
+                        }
+                }
+            );
       });
 
     /**
@@ -84,9 +93,9 @@ module.exports.controller = function(app){
      * A C C O U N T  D I S P L A Y
      */
     app.get('/displayAccount', function(req, res){
+        userModel.sendMail({});
         console.log('/displayAccount');
         if(!(req.cookies.userId)){
-            //res.render('users/login.jade');
             res.redirect('/login');
         }
         //--get user record from model....
@@ -95,13 +104,87 @@ module.exports.controller = function(app){
             res.render('users/displayaccount.jade', {data:inUniRecord});
         });
 
-        //var outData = {};
-        //get user id and valid session, lookup user data
-        //userModel.getUsers(outData, function(inErr, inRows, inFields){
-        //res.render('users/displayaccount.jade')
-        //});
-      
+
     });
+
+
+//########################################################################################
+//S E R V I C E S 
+//########################################################################################
+    app.post('/user/service', function(req, res){
+        //securityGaurd(req, res);
+        //req.body.userName,
+        console.log('/user/service ENTERED');
+        console.dir(req.body);
+        if(req.body.command == 'editUserAccountInformation'){
+            userModel.dbEditUserAccountData(
+                {
+                    userImagePath:req.body.userImagePath,
+
+                    onFinish:function(err, result){
+                        console.log('onFinish of /user/service (newId):' + newId);
+                    }
+
+                }
+            );
+            
+
+        }
+
+    if(req.body.command == 'addNewUserAccountInformation'){
+        if(!(req.cookies.userId)){
+            userModel.dbAddUserAccountData(
+                {                    
+                    userImagePath:req.body.userImagePath,
+                    firstName:req.body.params.firstName,
+                    lastName:req.body.params.lastName,
+                    emailAddress:req.body.params.emailAddress,
+                    userName:req.body.params.userName,
+                    address:req.body.params.address,
+                    city:req.body.params.city,
+                    state:req.body.params.state,
+                    zipcode:req.body.params.zipcode,
+                    country:req.body.params.country,
+
+                    onFinish:function(err, result){
+                        res.setHeader('Content-Type', 'application/json');
+                        res.end(JSON.stringify(err, result));
+                    }
+
+                }
+            );
+        }else{
+            //already has id in cookie!!!! not a new user
+
+        }
+
+    }
+
+    });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    var securityGaurd = function(inReq, inRes){
+        if(!(req.cookies.userId)){
+            res.redirect('/login');
+            return true
+        }
+        return false;
+    }
+
 
 
 

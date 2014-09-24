@@ -8,9 +8,9 @@ var finish = require("/nodejs_modules/node_modules/finish");
 module.exports.controller = function(app){
 
 	//-----G E T ----------------------------------------
-    app.get('/upload', function(req, res){    	
+    app.get('/upload', function(req, res){
         console.log("get")  ;
-        console.log("HOST:"+req.hostname);        
+        console.log("HOST:"+req.hostname);
         console.log("UserName:"+req.session.userName);
         console.log(req.body);
         console.log("MODELTEST:" + model.test());
@@ -20,25 +20,18 @@ module.exports.controller = function(app){
                 data:'',
                 customData:req.custom
             }
-        );     
+        );
     });
 
 
 
         //-----P O S T ---------------------------------
     app.post('/upload', function(req, res){
-        //var fieldsHash = {};
-        
-        //var file;
-        //var fileName;
-        //var encoding;
-        //var mimeType;
-
-
+        console.log('USERID=>:' + req.cookies.userId);
 
         var form = new multiparty.Form();
         form.parse(req, function(err, fields, files){
-            if(files){
+            if(files.uploadedFile){
                 var fieldsHash = {};
                 var tmpFilePath = files.uploadedFile[0].path;
                 var fileName = files.uploadedFile[0].originalFilename;
@@ -55,7 +48,7 @@ module.exports.controller = function(app){
                 model.processUploadedFile(
                     {
                         request:'',
-                        response:'',                        
+                        response:'',
                         file:file,
                         fileName:fileName,
                         encoding:encoding,
@@ -66,6 +59,11 @@ module.exports.controller = function(app){
                             console.dir(inData);
                             console.log('----------error-----------');
                             console.dir(err);
+
+                            res.setHeader('Content-Type', 'application/json');
+                            res.end(JSON.stringify(inData));
+
+
                         }
                     }
                 );

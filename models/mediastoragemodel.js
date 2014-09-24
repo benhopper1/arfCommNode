@@ -13,6 +13,10 @@ var audioModel = new AudioModel();
 var MultiStream = require(path.dirname(require.main.filename) + '/library/core/' + 'multistream.js');
 var multiStream = new MultiStream();
 
+var UserModel = require(path.dirname(require.main.filename) + '/models/' + 'usermodel.js');
+var userModel = new UserModel();
+
+
 
 var Connection = require(__dirname + '/connection.js');
 connection = Connection.getInstance('arf').getConnection();
@@ -42,13 +46,13 @@ var Model = function(){
 
 		
 		if(inData.mimeType.indexOf('audio') != -1 || path.extname(inData.fileName) == '.wav' || path.extname(inData.fileName) == '.mp3'){
-			_this.storeAudioFile(inData.file, inData.fileName, inData.encoding, inData.mimeType, inData.onComplete);
+			_this.storeAudioFile(inData.file, inData.fileName, inData.encoding, inData.mimeType, inData.onProcessUploadedFileComplete);
 			return true;
 		}
 		
 		
 		if(inData.mimeType.indexOf('image') != -1 || path.extname(inData.fileName) == '.jpg' || path.extname(inData.fileName) == '.gif' || path.extname(inData.fileName) == '.png'){			
-			_this.storeImageFile(inData.file, inData.fileName, inData.encoding, inData.mimeType, inData.data.theme, inData.onComplete);
+			_this.storeImageFile(inData.file, inData.fileName, inData.encoding, inData.mimeType, inData.data.theme, inData.onProcessUploadedFileComplete);
 			return true;
 		}
 	}
@@ -122,13 +126,12 @@ var Model = function(){
 			var saveTo = path.join(imageFolderPath, path.basename(inFileNamePath));
   			stdout.pipe(fs.createWriteStream(saveTo));
   			stdout.on('close', function(){
-  				console.log("stream Written to File:" + saveTo);
-  				console.dir(inCompleteFunction);
   				if(inCompleteFunction){
   					inCompleteFunction(
   						{
   							fileName:path.basename(inFileNamePath),
-  							domainFilePath:configData.mediaStorageModel.imageFolderPath + '/' + path.basename(inFileNamePath)
+  							domainFilePath:configData.mediaStorageModel.imageFolderPath + '/' + path.basename(inFileNamePath),
+  							fileNameNoExt:path.basename(inFileNamePath, path.extname(inFileNamePath))
   						}
 					);
   				}
@@ -149,7 +152,7 @@ var Model = function(){
 	}
 
 
-	this.dbStoreFile = function(inFileNamePath, inEncoding, inMimeType, inPostFunction){
+	this.dbStoreFile = function(inFileNamePath, inEncoding, inMimeType, inCompleteFunction){
 		var domain = 'HTTP://127.0.0.1';
 		var internetPath = inFileNamePath.replace(path.dirname(require.main.filename), domain);		
 		var fileName = path.basename(inFileNamePath, path.extname(inFileNamePath));
@@ -160,12 +163,19 @@ var Model = function(){
 		var domainUsePath = subFolders + '/' + fileName + extension;
 
 		var sqlString = "INSERT INTO tb_fileSystem (fileName, domain, subFolders, localPath, fullPathName, extension, domainUsePath, encoding, mime) VALUES(" + connection.escape(fileName) + ", " + connection.escape(domain) + "," + connection.escape(subFolders) + "," + connection.escape(localPath) + "," + connection.escape(fullPathName) + "," + connection.escape(extension) + ", " + connection.escape(domainUsePath) + ", " + connection.escape(inEncoding) + ", " + connection.escape(inMimeType) + " )";
-		connection.query(sqlString, function(err, result){			
-		//if(inPostFunction){inPostFunction(err, result, result.insertId);
-			console.log('indb return:')
-			console.dir(result);
-			console.dir(err);
-					
+		connection.query(sqlString, function(err, result){
+			if(err){
+				if(inCompleteFunction){
+  					inCompleteFunction(
+  						{
+  							fileName:path.basename(inFileNamePath),
+  							domainFilePath:configData.mediaStorageModel.imageFolderPath + '/' + path.basename(inFileNamePath),
+  							fileNameNoExt:path.basename(inFileNamePath, path.extname(inFileNamePath))
+  						},err
+					);
+  				}
+			}
+		
 		});
 	}
 

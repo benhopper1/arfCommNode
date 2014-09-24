@@ -18,6 +18,8 @@ block content
 
 
 script(type='text/javascript', src='/js/' + 'ajaxcomm.js')
+script(type='text/javascript', src='http://code.jquery.com/jquery-2.0.3.min.js')
+
 
 center
 
@@ -45,52 +47,139 @@ center
                                     td(valign="middle" align="left" style="width: 100px;")
                                         h5(class="") First Name                         
                                     td(valign="middle" align="left" style="width: 300px;")                        
-                                        input(id="tb_firstName" type="textbox" name="userName", value="#{data.fName}")
+                                        input(class="userDataClass" id="tb_firstName" type="textbox" name="firstName", value="#{data.fName}")
                                 tr
                                     td(valign="middle" align="left" style="width: 100px;")
                                         h5(class="") Last Name                         
                                     td(valign="middle" align="left" style="width: 300px;")                        
-                                        input(id="tb_lastName" type="textbox" name="userName", value="#{data.lName}")
+                                        input(class="userDataClass" id="tb_lastName" type="textbox" name="lastName", value="#{data.lName}")
                                 tr
                                     td(valign="middle" align="left" style="width: 100px;")
                                         h5(class="") Email Address                         
                                     td(valign="middle" align="left" style="width: 300px;")                        
-                                        input(id="tb_emailAddress" type="textbox" name="userName", value="#{data.emailAddress}")
+                                        input(class="userDataClass" id="tb_emailAddress" type="textbox" name="emailAddress", value="#{data.emailAddress}")
                                 tr
                                     td(valign="middle" align="left" style="width: 100px;")
                                         h5(class="") User Name                        
                                     td(valign="middle" align="left" style="width: 300px;")                        
-                                        input(id="tb_userName" type="textbox" name="userName", value="#{data.userName}")
+                                        input(class="userDataClass" id="tb_userName" type="textbox" name="userName", value="#{data.userName}")
                                 tr
                                     td(valign="middle" align="left" style="width: 100px;")
                                         h5(class="") Address                         
                                     td(valign="middle" align="left" style="width: 300px;")                        
-                                        input(id="tb_address" type="textbox" name="userName", value="na")
+                                        input(class="userDataClass" id="tb_address" type="textbox" name="address", value="na")
                                 tr
                                     td(valign="middle" align="left" style="width: 100px;")
                                         h5(class="") City                        
                                     td(valign="middle" align="left" style="width: 300px;")                        
-                                        input(id="tb_city" type="textbox" name="userName", value="#{data.city}")
+                                        input(class="userDataClass" id="tb_city" type="textbox" name="city", value="#{data.city}")
                                 tr
                                     td(valign="middle" align="left" style="width: 100px;")
                                         h5(class="") State                        
                                     td(valign="middle" align="left" style="width: 300px;")                        
-                                        input(id="tb_state" type="textbox" name="userName", value="#{data.state}")
+                                        input(class="userDataClass" id="tb_state" type="textbox" name="state", value="#{data.state}")
                                 tr
                                     td(valign="middle" align="left" style="width: 100px;")
                                         h5(class="") Zipcode                         
                                     td(valign="middle" align="left" style="width: 300px;")                        
-                                        input(id="tb_zip" type="textbox" name="userName", value="#{data.na}")                
+                                        input(class="userDataClass" id="tb_zip" type="textbox" name="zipcode", value="#{data.na}")                
                                 tr
                                     td(valign="middle" align="left" style="width: 100px;")
                                         h5(class="") Country                         
                                     td(valign="middle" align="left" style="width: 300px;")                      
-                                        input(id="tb_zip" type="textbox" name="userName", value="us")
+                                        input(class="userDataClass" id="tb_zip" type="textbox" name="country", value="us")
                                         <br>  <br> 
-                                        button(id="bt_ok" type="button" class="magic" onclick="doAjaxLogin();") OK
-                                        button(id="bt_cancel" type="button" class="magic" onclick="") CANCEL
+                                        button(id="bt_ok" type="button" class="magic" onclick="console.log('ok click');storeAccountInformation();") OK
+                                        button(id="bt_cancel" type="button" class="magic" onclick="convertPageDataToJson();") CANCEL
                     
                     td(valign="middle" align="left" style="width:400px;")
-                        img(src="http://www.walnutcracker.net/#{data.file}" height="200" align="middle")               
+                        img(id="userImage" src="http://www.walnutcracker.net/#{data.file}" height="200" align="middle" onclick="insertFileArea();")
 
+
+script(type='text/javascript', src='/js/' + 'ajaxcomm.js')
+script.
+    var insertFileArea = function(){
+        if (! $('#formArea').length){
+            $( "body" ).append('<div id="formArea"><input type="file" id="file1" style="display:none" accept=".jpg, .png, .gif"><div>');
+        }else{
+            //cleanup prior stuff
+            var control = $("#file1");
+            control.replaceWith( control = control.clone());
+        }
+
+        $("#file1").change(function(e){
+            var file = e.currentTarget.files[0];
+            console.log("test:" + file.name);
+            console.dir(e);
+            //updateImgById('userImage', 'file1', e);
+            uploadImageToServer('file1');
+        });
         
+        $( "#file1" ).trigger( "click" );
+    }
+
+    var updateImgById = function(inImgId, inLocalFile, inEvent){
+        $('#' + inImgId).src = $('#' + inLocalFile).value;
+        var tgt = inEvent.target || window.event.srcElement, files = tgt.files;
+        var fr = new FileReader();
+        fr.onload = function(ldEvent){
+            console.log("onlod fr");
+            $('#userImage').attr('src', ldEvent.target.result);
+        }
+        fr.readAsDataURL(files[0]);
+    }
+
+    var uploadImageToServer = function(inFileId){
+        var ajaxPostObject = new AjaxPostObject();
+
+        ajaxPostObject.uploadFileAndData(inFileId,
+            {
+            
+                'command':'imageStore',
+                'theme':'normalUserImage'
+
+            }, 
+            function(inResponse){
+                console.log("doUpload on finish!!!");
+                console.dir(inResponse);
+                console.log(JSON.parse(inResponse).fileName);
+                $('#userImage').attr('src', location.protocol + "//" + location.host + JSON.parse(inResponse).domainFilePath);               
+            }
+        );
+    }
+
+    var convertPageDataToJson = function(){
+        var fieldsHash = {};
+       $(".userDataClass").each(function(){
+            fieldsHash[this.name] = this.value;
+       });
+
+       return fieldsHash
+    }
+
+
+    var storeAccountInformation = function(){
+        console.log('storeAccountInformation ENTERED');
+        var ajxObj = new AjaxJsonPostObject(
+            {
+                url:'/user/service',
+                onSuccess:function(inResponseText){
+                    console.log("onSuccess:"+JSON.stringify(inResponseText));
+                    //document.location.href = '/displayAccount';
+
+                },
+                onFail:function(inError, inStatusText){
+                    console.log("onFail:"+inError+", "+JSON.stringify(inStatusText));
+                }
+
+            }
+        );
+
+        ajxObj.send(
+            {
+                command:'addNewUserAccountInformation',
+                params:convertPageDataToJson(),
+                imageDomainPath:$('#userImage').attr('src')
+            }
+        );
+    }

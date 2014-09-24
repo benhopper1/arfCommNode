@@ -1,0 +1,112 @@
+block content
+
+    style(type='text/css').
+        .magic{
+            padding:4px;
+            display:inline-block;
+            cursor:pointer;
+            font:12px/14px Arial, Helvetica, sans-serif;
+            color:#666;
+            border:1px solid #999;
+            background-color:#eee;
+            -moz-border-radius:10px;
+            -webkit-border-radius:10px;
+            -moz-box-shadow:#999 2px 0px 3px;
+            -webkit-box-shadow:#999 2px 0px 3px;
+            margin-bottom:4px;
+        }
+
+
+script(type='text/javascript', src='/js/' + 'ajaxcomm.js')
+script(type='text/javascript', src='http://code.jquery.com/jquery-2.0.3.min.js')
+
+
+center
+
+    block sidebar
+    .widget
+        h1 New User Account Information
+        
+       
+        
+        <br>
+        <br>
+
+
+    #accountDiv(class="magic" style="margin:0 auto;")
+        table
+            tbody
+                tr                     
+                    td
+
+                        table
+                            tbody
+                                tr
+                                    td(valign="middle" align="left" style="width: 100px;")
+                                        h5(class="") First Name                         
+                                    td(valign="middle" align="left" style="width: 300px;")
+                                        input(class="userDataClass" id="tb_firstName" type="textbox" name="firstName", value="")
+                                tr
+                                    td(valign="middle" align="left" style="width: 100px;")
+                                        h5(class="") Last Name                         
+                                    td(valign="middle" align="left" style="width: 300px;")
+                                        input(class="userDataClass" id="tb_lastName" type="textbox" name="lastName", value="")
+                                tr
+                                    td(valign="middle" align="left" style="width: 100px;")
+                                        h5(class="") Email Address                         
+                                    td(valign="middle" align="left" style="width: 300px;")
+                                        input(class="userDataClass" id="tb_emailAddress" type="textbox" name="emailAddress", value="")
+                                tr
+                                    td(valign="middle" align="left" style="width: 100px;")
+                                        h5(class="") User Name                        
+                                    td(valign="middle" align="left" style="width: 300px;")
+                                        input(class="userDataClass" id="tb_userName" type="textbox" name="userName", value="")
+
+
+                            tr
+                                    td(valign="middle" align="left" style="width: 100px;")
+                                        h5(class="") Password
+                                    td(valign="middle" align="left" style="width: 300px;")
+                                        input(class="userDataClass" id="tb_password" type="textbox" name="password", value="")
+
+                            tr
+                                    td(valign="middle" align="left" style="width: 100px;")
+                                        h5(class="") Pass Repeat
+                                    td(valign="middle" align="left" style="width: 300px;")
+                                        input(class="userDataClass" id="tb_password2" type="textbox" name="password2", value="")
+
+
+                                tr
+                                    td(valign="middle" align="left" style="width: 100px;")
+                                        h5(class="") Address
+                                    td(valign="middle" align="left" style="width: 300px;")
+                                        input(class="userDataClass" id="tb_address" type="textbox" name="address", value="")
+                                tr
+                                    td(valign="middle" align="left" style="width: 100px;")
+                                        h5(class="") City                        
+                                    td(valign="middle" align="left" style="width: 300px;")
+                                        input(class="userDataClass" id="tb_city" type="textbox" name="city", value="" onchange="console.log('change');")
+                                tr
+                                    td(valign="middle" align="left" style="width: 100px;")
+                                        h5(class="") State                        
+                                    td(valign="middle" align="left" style="width: 300px;")
+                                        input(class="userDataClass" id="tb_state" type="textbox" name="state", value="")
+                                tr
+                                    td(valign="middle" align="left" style="width: 100px;")
+                                        h5(class="") Zipcode                         
+                                    td(valign="middle" align="left" style="width: 300px;")                        
+                                        input(class="userDataClass" id="tb_zip" type="textbox" name="zipcode", value="")
+                                tr
+                                    td(valign="middle" align="left" style="width: 100px;")
+                                        h5(class="") Country                         
+                                    td(valign="middle" align="left" style="width: 300px;")                      
+                                        input(class="userDataClass" id="tb_zip" type="textbox" name="country", value="")
+                                        <br>  <br> 
+                                        button(id="bt_ok" type="button" class="magic" onclick="console.log('ok click');storeAccountInformation();") OK
+                                        button(id="bt_cancel" type="button" class="magic" onclick="convertPageDataToJson();") CANCEL
+                    
+                    td(valign="middle" align="left" style="width:400px;")
+                        img(id="userImage" src="http://www.walnutcracker.net/#{data.file}" height="200" align="middle" onclick="insertFileArea();")
+
+
+script(type='text/javascript', src='/js/' + 'ajaxcomm.js')
