@@ -1,13 +1,66 @@
+var url = require('url') ;
 var UserModel = require('../models/usermodel');
 var userModel = new UserModel();
 module.exports.controller = function(app){
 
-    /**
-     * a home page route, testing php rendering...
-     */
+
+
+      app.get('/test', function(req, res){
+            console.log("app get test");
+            res.render('users/test.jade',
+                {
+                    data:
+                        {
+                            fName:'ben',
+                            lName:'hopper'
+
+                        }
+                }
+            );
+
+            
+
+      });
+      app.get('/test2', function(req, res){
+            console.log("app get test2");
+            res.render('users/test.php',
+                {
+                    data:
+                        {
+                            fName:'ben',
+                            lName:'hopper'
+
+                        }
+                }
+            );
+
+            
+
+      });
+
+      app.get('/activateAccount', function(req, res){
+        var queryObject = url.parse(req.url,true).query;
+        console.log(queryObject);
+
+            console.log("enableAccount");
+            res.render('users/login.jade',
+                {
+                    data:
+                        {
+                            fName:'ben',
+                            lName:'hopper'
+
+                        }
+                }
+            );
+
+            
+
+      });
+
+
+
       app.get('/createAccount', function(req, res){
-            // any logic goes here
-            //req.session.userName = "Ben TTr-3";      
             console.log("app get createAccount");
             res.render('users/createaccount.jade',
                 {
@@ -21,13 +74,11 @@ module.exports.controller = function(app){
             );
       });
 
-    /**
-     * L O G I N 
-     */
+
     //----G E T -----
     app.get('/login', function(req, res) {
         console.log("get")  ;
-        console.log("HOST:"+req.hostname);        
+        console.log("HOST:"+req.hostname);
         console.log("UserName:"+req.session.userName);
         console.log(req.body);
         res.render('users/login.jade',
@@ -35,22 +86,24 @@ module.exports.controller = function(app){
                 data:'',
                 customData:req.custom
             }
-        );     
+        );
     });
+
+
     //-----P O S T ------
     app.post('/getUserData', function(req, res){
-      	console.log("post getUserData")  ;
-      	console.log("HOST:"+req.hostname);        
+      	console.log("post getUserData");
+      	console.log("HOST:"+req.hostname);
         console.log("UserName:"+req.session.userName);
-        console.dir(req.body);        
-        //--------lookup user and verify------------
+        console.dir(req.body);
+
         userModel.verifyAndGetUserData(
             {
                 userName:req.body.userName,
                 password:req.body.password,
 
                 onSuccess:function(inUniRecord, inFields){
-                    console.log("verfyPass:"+JSON.stringify(inUniRecord));                
+                    console.log("verfyPass:"+JSON.stringify(inUniRecord));
                     //cookie time!!!
                     userModel.processCookie(
                         {
@@ -59,24 +112,23 @@ module.exports.controller = function(app){
                             requestRef:req,
                             onSuccess:function(){
                                 console.log("cookie thingy finished");
-                                //res.render('users/displayaccount.jade',{data:inUniRecord});
-                                //res.redirect('/displayAccount');
-                                // DONE HERE---
                             },
-                            onFail:function(){}
+
+                            onFail:function(inError){
+                                console.log('process cookie ERROR->:' + inError);
+                            }
                         }
                     );
                 },
 
-                onFail:function(inError){console.log("username/password FAILED!!!");}
+                onFail:function(inError){console.log('FAIL: /getUserData  userModel.verifyAndGetUserData()' + inError);}
             }
         );
         
     });
 
-    /**
-     * L O G O U T 
-     */
+
+
     app.get('/logout', function(req, res) {
         // any logic goes here
         console.log("HOST:"+req.hostname);        
@@ -89,9 +141,8 @@ module.exports.controller = function(app){
       
     });
 
-    /**
-     * A C C O U N T  D I S P L A Y
-     */
+
+
     app.get('/displayAccount', function(req, res){
         userModel.sendMail({});
         console.log('/displayAccount');
@@ -113,28 +164,12 @@ module.exports.controller = function(app){
 //########################################################################################
     app.post('/user/service', function(req, res){
         //securityGaurd(req, res);
-        //req.body.userName,
         console.log('/user/service ENTERED');
         console.dir(req.body);
         if(req.body.command == 'editUserAccountInformation'){
+            console.log('editUserAccountInformation ENTERED');
             userModel.dbEditUserAccountData(
                 {
-                    userImagePath:req.body.userImagePath,
-
-                    onFinish:function(err, result){
-                        console.log('onFinish of /user/service (newId):' + newId);
-                    }
-
-                }
-            );
-            
-
-        }
-
-    if(req.body.command == 'addNewUserAccountInformation'){
-        if(!(req.cookies.userId)){
-            userModel.dbAddUserAccountData(
-                {                    
                     userImagePath:req.body.userImagePath,
                     firstName:req.body.params.firstName,
                     lastName:req.body.params.lastName,
@@ -145,20 +180,46 @@ module.exports.controller = function(app){
                     state:req.body.params.state,
                     zipcode:req.body.params.zipcode,
                     country:req.body.params.country,
-
-                    onFinish:function(err, result){
-                        res.setHeader('Content-Type', 'application/json');
-                        res.end(JSON.stringify(err, result));
+                    onFinish:function(result){
+                        if(!(result.error)){
+                            console.log('onFinish');
+                            console.dir(result);
+                        }else{
+                            console.log('onFinish with error');
+                            console.dir(result.error);
+                        }
                     }
-
                 }
             );
-        }else{
-            //already has id in cookie!!!! not a new user
-
         }
 
-    }
+        if(req.body.command == 'addNewUserAccountInformation'){
+            if(!(req.cookies.userId)){
+                userModel.dbAddUserAccountData(
+                    {
+                        userImagePath:req.body.userImagePath,
+                        firstName:req.body.params.firstName,
+                        lastName:req.body.params.lastName,
+                        emailAddress:req.body.params.emailAddress,
+                        userName:req.body.params.userName,
+                        address:req.body.params.address,
+                        city:req.body.params.city,
+                        state:req.body.params.state,
+                        zipcode:req.body.params.zipcode,
+                        country:req.body.params.country,
+
+                        onFinish:function(err, result){
+                            res.setHeader('Content-Type', 'application/json');
+                            res.end(JSON.stringify(err, result));
+                        }
+                    }
+                );
+
+
+            }else{
+                //already has id in cookie!!!! not a new user
+            }
+        }
 
     });
 

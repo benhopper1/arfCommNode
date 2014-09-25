@@ -2,6 +2,7 @@ var fs = require('fs');
 var path = require('path');
 var Connection = require(__dirname + '/connection.js');
 var nodemailer = require('/nodejs_modules/node_modules/nodemailer');
+var uuid = require('/nodejs_modules/node_modules/node-uuid');
 
 connection = Connection.getInstance('arf').getConnection();
 
@@ -9,7 +10,18 @@ connection = Connection.getInstance('arf').getConnection();
 //model----------------
 var Model = function(){
 	var configData = fs.readFileSync('arfmvc.conf', 'utf8');
+	var _this = this;
 	configData = JSON.parse(configData);
+
+	var domainAddress = configData.domain.address;
+	var domainPort = configData.domain.port;
+	this.getHost = function(){
+		var result;
+		if(domainPort && domainPort != 80){
+			return domainAddress + ':' + domainPort;
+		}
+		return domainAddress;
+	}
 
 	var _this = this;
 	this.getUsers = function(inData, inPostFunction){
@@ -36,7 +48,11 @@ var Model = function(){
 				var sqlString = "SELECT * from vw_userData WHERE id=" + connection.escape(inRows[0].id);
 				connection.query(sqlString, function(inErr, inRows, inFields){
 					if(!(inErr)){
-						if(inData.onSuccess){inData.onSuccess(inRows[0], inFields);}
+						if(inRows.length < 1){
+							if(inData.onFail){inData.onFail(new Error('user not found'));}
+						}else{
+							if(inData.onSuccess){inData.onSuccess(inRows[0], inFields);}
+						}
 					}else{
 						if(inData.onFail){inData.onFail(inErr);}
 					}
@@ -76,7 +92,8 @@ var Model = function(){
 		if(inData.onFinish){
 			inData.onFinish(
 				{
-					test:'from userModel dbEditUserAccountData'
+					test:'from userModel dbEditUserAccountData',
+					error:true
 				}
 			);
 		
@@ -86,10 +103,17 @@ var Model = function(){
 	this.dbAddUserAccountData = function(inData){
 		console.log('dbAddUserAccountData');
 		console.dir(inData);
+		var activateCode = uuid.v1();
 
 		inData.password = 'dog';//TODO md5 routines will go inplace etc...
-		var sqlString = "INSERT INTO tb_user (fName,lName ,emailAddress, userName, password, address, city, state, zipcode, country, userGroup) VALUES(" + connection.escape(inData.firstName) + ", " + connection.escape(inData.lastName) + "," + connection.escape(inData.emailAddress) + ", " + connection.escape(inData.userName) + ", " + connection.escape(inData.password) + ", " + connection.escape(inData.address) + ", " + connection.escape(inData.city) + ", " + connection.escape(inData.state) + ", " + connection.escape(inData.zipcode) + ", " + connection.escape(inData.country) + ", " + connection.escape('arfUser') + " )";
+		var sqlString = "INSERT INTO tb_user (fName,lName ,emailAddress, userName, password, address, city, state, zipcode, country, userGroup, screenImage, activateCode) VALUES(" + connection.escape(inData.firstName) + ", " + connection.escape(inData.lastName) + "," + connection.escape(inData.emailAddress) + ", " + connection.escape(inData.userName) + ", " + connection.escape(inData.password) + ", " + connection.escape(inData.address) + ", " + connection.escape(inData.city) + ", " + connection.escape(inData.state) + ", " + connection.escape(inData.zipcode) + ", " + connection.escape(inData.country) + ", " + connection.escape('arfUser') + ", " + connection.escape(configData.mediaStorageModel.imageFolderPath + '/'+ path.basename(inData.userImagePath)) + ", " + connection.escape(activateCode) + " )";
 		connection.query(sqlString, function(err, result){
+			if(!(err)){
+				_this.sendMailActivateCode(inData.emailAddress, activateCode, result.insertId);
+			}
+
+
+
 			if(inData.userImagePath){
 				if(err){
 					console.log("ERROR in dbAddUserAccountData insert" + err );
@@ -122,6 +146,7 @@ var Model = function(){
 	}
 
 	this.processCookie = function(inData){
+		if(typeof inData.userRecord === 'undefined'){console.log('fail no id?? / cookie but no query result');return;}
 		if(inData.userRecord.id){
 			inData.responseRef.cookie('userId', inData.userRecord.id.toString(), { maxAge: 86400000*365, httpOnly: true });
 			if(inData.userRecord.userName){
@@ -157,7 +182,7 @@ var Model = function(){
 	}
  
 
-
+	//--remove this is testing function -----
 	this.sendMail = function(inData){
 		var transporter = nodemailer.createTransport(configData.mail.accountSetup.transporter);
 		transporter.sendMail(
@@ -169,6 +194,27 @@ var Model = function(){
 			}
 		);
 	}
+
+	this.sendMailActivateCode = function(inDestinationAddess, inCode, inUserId){
+		var transporter = nodemailer.createTransport(configData.mail.accountSetup.transporter);
+		var activateLink = _this.getHost() + '/' + 'activateAccount?code=' + inCode + '&userId=' + inUserId;
+		transporter.sendMail(
+			{
+			    from: 'arfcomm@gmail.com',
+			    to: inDestinationAddess,
+			    subject: 'ArfComm Activation Code',
+			    text: 'Click link to activate your account \n ' + activateLink
+			}
+		);
+	}
+
+	this.activateUserAccount = function(inCode, inUserId){
+
+	}
+
+
 }
+
+
 
 module.exports = Model;

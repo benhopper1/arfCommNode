@@ -1,0 +1,284 @@
+doctype html
+html
+	head
+		title Hello CodeProject
+		script(type='text/javascript', src='http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js')
+		script(type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.js")
+		script(type="text/javascript" src="public/js/menu/inc/jquery.metadata.js")
+		script(type="text/javascript" src="public/js/menu/inc/jquery.hoverIntent.js")
+		script(type="text/javascript" src="public/js/menu/inc/mbMenu.js")
+		link(rel="stylesheet" href="public/js/menu/css/menu_red.css" media="screen")
+	body
+		
+		style(type='text/css').
+			.dropdown-dark{
+				background: #444;
+				border-color: #111 #0a0a0a black;
+				background-image: -webkit-linear-gradient(top, transparent, rgba(0, 0, 0, 0.4));
+				background-image: -moz-linear-gradient(top, transparent, rgba(0, 0, 0, 0.4));
+				background-image: -o-linear-gradient(top, transparent, rgba(0, 0, 0, 0.4));
+				background-image: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.4));
+				-webkit-box-shadow: inset 0 1px rgba(255, 255, 255, 0.1), 0 1px 1px rgba(0, 0, 0, 0.2);
+				box-shadow: inset 0 1px rgba(255, 255, 255, 0.1), 0 1px 1px rgba(0, 0, 0, 0.2);
+			}
+			.dropdown-dark:before {
+				border-bottom-color: #aaa;
+			}
+			.dropdown-dark:after {
+				border-top-color: #aaa;
+			}
+			.dropdown-dark .dropdown-select{
+				color: #aaa;
+				text-shadow: 0 1px black;
+				background: #444;
+			}
+			.dropdown-dark .dropdown-select:focus {
+				color: #ccc;
+			}
+			.dropdown-dark .dropdown-select > option {
+				background: #444;
+				text-shadow: 0 1px rgba(0, 0, 0, 0.4);
+			}
+
+			.buttonSt:disabled {
+				color:#49494C;
+				background-color:#111111;
+				content: "Disabled";
+			}
+			body  a.style{
+				color:#AF3002;
+				font-family:sans-serif;
+				font-size:13px;
+				text-decoration:none;
+			}
+
+			.wrapper{
+				font-family:Arial, Helvetica, sans-serif;
+				margin-top:00px;
+				margin-left:00px;
+			}
+
+			.wrapper h1{
+				font-family:Arial, Helvetica, sans-serif;
+				font-size:26px;
+			}
+			
+			input, textarea{
+				background-color:rgba(0, 0, 0, 0.1);
+				padding:4px;
+				display:inline-block;
+				cursor:pointer;
+				font:12px/14px Arial, Helvetica, sans-serif;
+				color:#666;
+				border:1px solid #333333;
+				
+				
+				margin-bottom:4px;
+			}
+
+
+
+			img{
+				background-color:rgba(0, 0, 0, 0.1);
+				padding:4px;
+				display:inline-block;
+				cursor:pointer;
+				font:12px/14px Arial, Helvetica, sans-serif;
+				color:#666;
+				border:1px solid #999;
+				
+				-moz-border-radius:2px;
+				-webkit-border-radius:5px;
+				-moz-box-shadow:#999 2px 0px 3px;
+				-webkit-box-shadow:#999 2px 0px 3px;
+				margin-bottom:4px;
+			}
+			button{
+				padding:4px;
+				display:inline-block;
+				cursor:pointer;
+				font:12px/14px Arial, Helvetica, sans-serif;
+				color:#666;
+				border:1px solid #999;
+				background-color:#eee;
+				-moz-border-radius:10px;
+				-webkit-border-radius:10px;
+				-moz-box-shadow:#999 2px 0px 3px;
+				-webkit-box-shadow:#999 2px 0px 3px;
+				margin-bottom:4px;
+			}
+			button:hover{
+				color:#aaa;
+				background-color:#000;
+			}
+			:focus {
+				outline: 0;
+			}
+
+			span.btn{
+				padding:10px;
+				display:inline-block;
+				cursor:pointer;
+				font:12px/14px Arial, Helvetica, sans-serif;
+				color:#aaa;
+				background-color:#eee;
+				-moz-border-radius:10px;
+				-webkit-border-radius:10px;
+				-moz-box-shadow:#999 2px 0px 3px;
+				-webkit-box-shadow:#999 2px 0px 3px;
+			}
+			span.btn:hover{
+				background-color:#000;
+			}
+
+			.msgBox{
+				position:absolute;
+				width:250px;
+				height:60px;
+				background:black;
+				color:#fff;
+				-moz-box-shadow:#999 2px 0px 3px;
+				-webkit-box-shadow:#999 2px 0px 3px;
+				-moz-border-radius:10px;
+				-webkit-border-radius:10px;
+				padding:10px;
+				padding-top:20px;
+				top:10px;
+				right:10px;
+				font:20px/24px Arial, Helvetica, sans-serif;
+			}
+
+			.rootVoices td.rootVoice.custom.selected{
+				background: red;
+				padding:8px;
+				color:#ffffff;
+				cursor: pointer;
+				font-size:14px;
+				text-shadow:#660033 1px 1px 1px;
+				-webkit-border-top-right-radius:8px;
+				-webkit-border-top-left-radius:8px;
+				-webkit-border-bottom-right-radius:0;
+				-webkit-border-bottom-left-radius:0;
+			}
+		script.
+			$(function(){
+				$(".myMenu").buildMenu({
+						template:"http://walnutcracker.net/ajaxtemplate/navigatearf",
+						additionalData:"pippo=1",
+						menuWidth:200,
+						openOnRight:false,
+						menuSelector: ".menuContainer",
+						iconPath:"public/img/",
+						hasImages:true,
+						fadeInTime:100,
+						fadeOutTime:300,
+						adjustLeft:2,
+						minZindex:"auto",
+						adjustTop:10,
+						opacity:.95,
+						shadow:false,
+						shadowColor:"#ccc",
+						hoverIntent:0,
+						openOnClick:true,
+						closeOnMouseOut:true,
+						closeAfter:1000,
+						submenuHoverIntent:200
+					});
+
+			
+
+				//context menu------------------------
+				$(document).buildContextualMenu(
+						{
+							template:"menuVoices.html",
+							menuWidth:200,
+							overflow:2,
+							menuSelector: ".menuContainer",
+							iconPath:"http://www.walnutcracker.net/arf/pictures/",
+							hasImages:false,
+							fadeInTime:100,
+							fadeOutTime:100,
+							adjustLeft:0,
+							adjustTop:0,
+							opacity:.99,
+							closeOnMouseOut:false,
+							onContextualMenu:function(o,e){
+								testForContextMenu();
+							}, //params: o = the contextual menu,e = the event
+							shadow:false
+						});
+
+			});
+			//this function get the id of the element that fires the context menu.
+			function testForContextMenu(el){
+				if (!el) el= $.mbMenu.lastContextMenuEl;
+				$.mbMenu.contextMenuKey = 'userId';
+				$.mbMenu.contextMenuValue = $(el).attr("userId");
+
+				//alert( $.mbMenu.contextMenuValue );
+				showMessage("the ID of the element is:   "+$(el).attr("userId"));
+				return $.mbMenu.contextMenuValue;
+			}
+
+			function recallcMenu(el){
+				if (!el) el= $.mbMenu.lastContextMenuEl;
+				var cmenu=+$(el).attr("cmenu");
+				$(cmenu).remove();
+			}
+
+			function getUserIdFromEl(el){
+				return $(el).attr("userId"); 
+			}
+
+				
+
+			function showMessage(msg){
+				var msgBox=$("<div>").addClass("msgBox");
+				$("body").append(msgBox);
+				msgBox.append(msg);
+				setTimeout(function(){msgBox.fadeOut(500,function(){msgBox.remove();})},3000)
+			}
+
+
+		block content
+			div(class="wrapper")
+				table(width="100%"  border="0" cellpadding="0" cellspacing="0" bgcolor="#EDEDED")
+					tr
+						td(width="180" height="33" style="padding:10px" class="style")
+						td(valign="bottom")
+							table(class="myMenu rootVoices" cellspacing='0' cellpadding='0' border='0')
+								tr
+									td(class="rootVoice {menu: 'menu_12'}").
+										Navigate Arf
+									td(id="firstVoice2" class="rootVoice {menu: 'box_menu'}").
+										box menu
+									td(class="rootVoice {menu: 'menu_2'}").
+										menu 1
+									td(class="rootVoice {menu: 'menu_2', disabled:true}").
+										menu disabled
+									td(class="rootVoice {menu: 'menu_3'}").
+										menu 2
+									td(class="rootVoice {menu: 'empty'}" onclick="showMessage('empty root menu')").
+										empty menu
+
+
+				
+				#menu_1.mbmenu
+					a(data-type='title') title menu_1.1
+					//
+					menuvoice title
+					a.{img:.'ico_view.gif'}(href='http://patapage.com') menu_1.1 (href with target "_self") 
+					//
+					menuvoice with href
+					a.{action:.'showMessage(\'menu_1.2\')'} menu_1.2
+					//
+					menuvoice with js action
+					a(data-type='separator')  
+					//
+					menuvoice separator
+					a.{action:.'showMessage(\'menu_1.3\')',.disabled:true}(href='#') menu_1.3
+					//
+					menuvoice disabled
+					a.{action:.'showMessage(\'menu_1.4\')',.menu:'menu_1',.img:.'24-book-blue-check.png'} menu_1.4
+					//
+					menuvoice with js action, image and submenu

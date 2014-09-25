@@ -17,7 +17,7 @@ block content
         }
 
 
-script(type='text/javascript', src='/js/' + 'ajaxcomm.js')
+
 script(type='text/javascript', src='http://code.jquery.com/jquery-2.0.3.min.js')
 
 
@@ -89,87 +89,46 @@ center
                                     td(valign="middle" align="left" style="width: 300px;")                      
                                         input(class="userDataClass" id="tb_zip" type="textbox" name="country", value="us")
                                         <br>  <br> 
-                                        button(id="bt_ok" type="button" class="magic" onclick="console.log('ok click');storeAccountInformation();") OK
+                                        button(id="bt_ok" type="button" class="magic" onclick="") OK
                                         button(id="bt_cancel" type="button" class="magic" onclick="convertPageDataToJson();") CANCEL
                     
                     td(valign="middle" align="left" style="width:400px;")
-                        img(id="userImage" src="http://www.walnutcracker.net/#{data.file}" height="200" align="middle" onclick="insertFileArea();")
+                        img(id="userImage" src="#{data.file}" height="200" align="middle" )
 
 
-script(type='text/javascript', src='/js/' + 'ajaxcomm.js')
+script(type='text/javascript', src='/js/' + 'clientutil/clientutil.js')
 script.
-    var insertFileArea = function(){
-        if (! $('#formArea').length){
-            $( "body" ).append('<div id="formArea"><input type="file" id="file1" style="display:none" accept=".jpg, .png, .gif"><div>');
-        }else{
-            //cleanup prior stuff
-            var control = $("#file1");
-            control.replaceWith( control = control.clone());
-        }
 
-        $("#file1").change(function(e){
-            var file = e.currentTarget.files[0];
-            console.log("test:" + file.name);
-            console.dir(e);
-            //updateImgById('userImage', 'file1', e);
-            uploadImageToServer('file1');
-        });
-        
-        $( "#file1" ).trigger( "click" );
-    }
+    var inputFileObject = new clientUtilModule.InputFileObject('/upload',['pdf', '.jpg']);
+    inputFileObject.setOnFileChange(function(){        
+            inputFileObject.send(
+                {
+                    'command':'imageStore',
+                    'theme':'normalUserImage'
+                }, 
+                function(inResponse){
 
-    var updateImgById = function(inImgId, inLocalFile, inEvent){
-        $('#' + inImgId).src = $('#' + inLocalFile).value;
-        var tgt = inEvent.target || window.event.srcElement, files = tgt.files;
-        var fr = new FileReader();
-        fr.onload = function(ldEvent){
-            console.log("onlod fr");
-            $('#userImage').attr('src', ldEvent.target.result);
-        }
-        fr.readAsDataURL(files[0]);
-    }
+                    console.log('rsp:' + inResponse);
+                    $('#userImage').attr('src', location.protocol + "//" + location.host + JSON.parse(inResponse).domainFilePath);   
+                }
+            );
+    });
 
-    var uploadImageToServer = function(inFileId){
-        var ajaxPostObject = new AjaxPostObject();
+    $('#userImage').click(function(){
+        inputFileObject.showBrowse();
+    });
 
-        ajaxPostObject.uploadFileAndData(inFileId,
-            {
-            
-                'command':'imageStore',
-                'theme':'normalUserImage'
-
-            }, 
-            function(inResponse){
-                console.log("doUpload on finish!!!");
-                console.dir(inResponse);
-                console.log(JSON.parse(inResponse).fileName);
-                $('#userImage').attr('src', location.protocol + "//" + location.host + JSON.parse(inResponse).domainFilePath);               
-            }
-        );
-    }
-
-    var convertPageDataToJson = function(){
-        var fieldsHash = {};
-       $(".userDataClass").each(function(){
-            fieldsHash[this.name] = this.value;
-       });
-
-       return fieldsHash
-    }
-
-
-    var storeAccountInformation = function(){
-        console.log('storeAccountInformation ENTERED');
-        var ajxObj = new AjaxJsonPostObject(
+    $('#bt_ok').click(function(){
+        var ajxObj = new clientUtilModule.AjaxJsonPostObject(
             {
                 url:'/user/service',
-                onSuccess:function(inResponseText){
-                    console.log("onSuccess:"+JSON.stringify(inResponseText));
+                onAjaxSuccess:function(inResponseText){
+                    console.log("onAjaxSuccess:"+JSON.stringify(inResponseText));
                     //document.location.href = '/displayAccount';
 
                 },
-                onFail:function(inError, inStatusText){
-                    console.log("onFail:"+inError+", "+JSON.stringify(inStatusText));
+                onAjaxFail:function(inError, inStatusText){
+                    console.log("onAjaxFail:"+inError+", "+JSON.stringify(inStatusText));
                 }
 
             }
@@ -177,9 +136,9 @@ script.
 
         ajxObj.send(
             {
-                command:'addNewUserAccountInformation',
-                params:convertPageDataToJson(),
+                command:'editUserAccountInformation',
+                params:clientUtilModule.classToHash('userDataClass'),
                 imageDomainPath:$('#userImage').attr('src')
             }
         );
-    }
+    });
