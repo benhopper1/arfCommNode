@@ -1,0 +1,67 @@
+
+
+
+- if(data.command == 'init')
+	center(id="center_#{reqBody.uuid}" height="300px")
+		font(id="title_#{reqBody.uuid}" class="#{reqBody.titleClass}" size="#{reqBody.titleSize}") #{reqBody.title}
+		br
+		input(id="tb_needle_#{reqBody.uuid}" type="text" value="")
+		id(id="#{reqBody.uuid}" class="mainHolder")
+
+		br
+		- var buttonIndex = 0
+		each buttonObject in reqBody.buttons
+			button(id="#{buttonObject.id}" index="#{buttonIndex}" style="#{buttonObject.style}" type="button" class="#{buttonObject.class}" ) #{buttonObject.caption}
+		- buttonIndex++
+	script.
+		$(document).ready(function(){
+			var memberFinderInstance = MemberFinder.getInstance('#{reqBody.uuid}');
+			var buttonHash = !{JSON.stringify(reqBody.buttons)}
+			var buttonEventsHash = memberFinderInstance.getButtonEventsHash();
+			for(index in buttonHash){
+				$('#' + buttonHash[index].id).on('click', function(e){
+					var memberFinderInstance = MemberFinder.getInstance('#{reqBody.uuid}');
+					buttonEventsHash[ e.currentTarget.id ](e, e.currentTarget.id, memberFinderInstance.getData());
+				});
+			}
+		});
+
+
+
+
+- else
+	style.
+		.setOf{
+			background-color: #FFFFFF;
+			color: #000000;
+			border: 2px inset #6D6D6D;
+			padding: 1px;
+			margin: 0px;
+			line-height: 0px;
+			text-align: center;
+		}
+		.userImage{
+
+		}
+	- var index = 0
+	each member in data.members
+		div(id="components_#{reqBody.uuid}_#{index}" index="#{index}" class="componentsHolder" )
+			include widgetmember
+		- index++
+
+	script.
+		var Namespace_#{reqBody.uuid} = function(){
+			var data = !{JSON.stringify(data)}
+			var memberFinderInstance = MemberFinder.getInstance('#{reqBody.uuid}');
+			memberFinderInstance.getData = function(){
+				var classValue = 'cb_' + !{JSON.stringify(reqBody.uuid)};
+				$('.' + classValue).each(function(){
+					var index =  parseInt($(this).attr('index'));
+					data.members[index].selected = $(this).prop('checked');
+				});
+				return data;
+			}
+			memberFinderInstance.clearData = function(){data = false;}
+		}();
+
+

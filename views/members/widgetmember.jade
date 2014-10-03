@@ -1,0 +1,14 @@
+//widgetMember
+
+table
+	tr(class="setOf magic")
+		td(width="100px")
+			img(id="img_#{reqBody.uuid}_#{index}" index="#{index}" class="userImage" src="/public/images/3a98f600-435d-11e4-846c-d3021416683c.jpg" height="60" align="middle")
+		td(width="100px")
+			center(height="60")
+				p(style="font-size: 10px;").
+					#{member.fName} #{member.lName}
+				h3.
+					#{member.userName}
+			input(id="cb_#{reqBody.uuid}_#{index}" class="cb_#{reqBody.uuid}" index="#{index}" type="checkbox" name="components_#{reqBody.uuid}_#{index}")
+

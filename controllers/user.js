@@ -1,27 +1,32 @@
 var url = require('url') ;
 var UserModel = require('../models/usermodel');
 var userModel = new UserModel();
+
 module.exports.controller = function(app){
 
 
 
-      app.get('/test', function(req, res){
-            console.log("app get test");
-            res.render('users/test.jade',
-                {
-                    data:
-                        {
-                            fName:'ben',
-                            lName:'hopper'
 
-                        }
-                }
+
+    var jsdom = require("/nodejs_modules/node_modules/plates");
+      app.get('/test', function(req, res){
+            console.log('req.secure' + req.secure);
+            console.log("app get test");
+            jsdom.env(
+                  "http://127.0.0.1:35001/matt",
+                  ["http://code.jquery.com/jquery.js"],
+                  function (errors, window) {
+                    console.dir(errors);
+                    console.dir(window);
+                        console.log("there have been", window.$("#r4").attr('value'), "nodejs releases!");
+                  }
+
             );
 
-            
 
       });
       app.get('/test2', function(req, res){
+            console.log('req.secure' + req.secure);
             console.log("app get test2");
             res.render('users/test.php',
                 {
@@ -54,7 +59,6 @@ module.exports.controller = function(app){
                 }
             );
 
-            
 
       });
 
@@ -239,8 +243,8 @@ module.exports.controller = function(app){
 
 
     var securityGaurd = function(inReq, inRes){
-        if(!(req.cookies.userId)){
-            res.redirect('/login');
+        if(!(inReq.cookies.userId)){
+            inRes.redirect('/login');
             return true
         }
         return false;

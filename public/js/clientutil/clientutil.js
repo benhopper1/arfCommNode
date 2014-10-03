@@ -119,7 +119,9 @@ var clientUtilModule = new function(){
 
 	    var xhr = new XMLHttpRequest();
 
-	    this.send = function(inData){
+	    this.send = function(inData, inOnAjaxSuccess, inOnAjaxFail){
+	    	if(inOnAjaxSuccess){function_onSuccess = inOnAjaxSuccess;console.log('suc  yes man!!!');}
+	    	if(inOnAjaxFail){function_onFail = inOnAjaxFail;}
 	        console.log('sending');
 	        xhr.open(method, url, aSync);
 
